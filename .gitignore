@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# App runtime
+gridiq.log
+gridiq.pid
+data/cache/
+
+# Large fetched datasets (see scripts/fetch_data.sh)
+data/grid/*.raw
+data/grid/africa_grid_*.geojson
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Archives
+*.zip

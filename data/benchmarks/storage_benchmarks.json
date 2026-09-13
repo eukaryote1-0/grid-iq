@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "synthetic": false,
+    "role": "External benchmark assumptions only; not Botswana measured storage data.",
+    "sources": [
+      {
+        "id": "irena_2024_costs",
+        "publisher": "IRENA",
+        "title": "Renewable Power Generation Costs in 2024",
+        "url": "https://www.irena.org/Digital-Report/Renewable-Power-Generation-Costs-in-2024"
+      },
+      {
+        "id": "nrel_atb_2024_battery",
+        "publisher": "NREL / NLR",
+        "title": "2024 Annual Technology Baseline - Utility-Scale Battery Storage",
+        "url": "https://atb.nrel.gov/electricity/2024/2023/utility-scale_battery_storage"
+      }
+    ]
+  },
+  "utility_scale_bess_2024": {
+    "global_total_installed_cost_usd_per_kwh": 192,
+    "global_turnkey_cost_range_usd_per_kwh": [148,165],
+    "cost_decline_2010_to_2024_pct": 93,
+    "energy_shifting_share_of_added_capacity_pct": 68,
+    "round_trip_efficiency_pct_nrel_atb": 85,
+    "four_hour_one_cycle_per_day_capacity_factor_pct": 16.7,
+    "fixed_om_pct_of_capex_nrel_atb": 2.5
+  }
+}

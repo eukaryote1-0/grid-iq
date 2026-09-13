@@ -1,0 +1,265 @@
+[
+  {
+    "id": "stats_electricity",
+    "name": "Electricity Generation & Distribution Stats Brief Q1 2026",
+    "source": "Statistics Botswana / BPC",
+    "mode": "BUNDLED OFFICIAL SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "generation mix",
+      "generation/import history",
+      "distribution baseline",
+      "local supply share"
+    ],
+    "limits": "National/quarterly data. It does not provide feeder-level load, line ratings or impedances.",
+    "source_url": "https://www.statsbots.org.bw/sites/default/files/Electricity%20Generation%20and%20Distribution%20Stats%20Brief,%20First%20Quarter%202026.pdf",
+    "catalog_origin": "OIC2 energy dataset list"
+  },
+  {
+    "id": "osm_power",
+    "name": "OpenStreetMap / OpenInfraMap power infrastructure",
+    "source": "OpenStreetMap / Overpass + OpenInfraMap context",
+    "mode": "LIVE GIS API",
+    "status": "connected",
+    "relevance": 10,
+    "used_for": [
+      "mapped transmission geometry",
+      "substations",
+      "power plants/generators",
+      "OSM-derived topology"
+    ],
+    "limits": "Mapped public topology is not BPC's electrical model. Missing ratings, impedance, loading and condition remain unknown.",
+    "source_url": "https://www.openstreetmap.org/",
+    "catalog_origin": "OIC2: OpenInfraMap & Global Power Plant Database"
+  },
+  {
+    "id": "sapp",
+    "name": "SAPP Demand & Supply \u2013 Botswana/BPC",
+    "source": "Southern African Power Pool",
+    "mode": "BUNDLED CURRENT WEB SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "installed capacity",
+      "operating capacity",
+      "current peak demand",
+      "capacity shortfall context"
+    ],
+    "limits": "System-level figures, not time-synchronised feeder/substation measurements.",
+    "source_url": "https://www.sapp.co.zw/demand-and-supply",
+    "catalog_origin": "OIC2: SAPP"
+  },
+  {
+    "id": "energy_compact",
+    "name": "Botswana National Energy Compact",
+    "source": "Government of Botswana / World Bank / AfDB",
+    "mode": "BUNDLED VERIFIED SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "transmission km by voltage",
+      "system loss benchmark",
+      "access baseline",
+      "renewable targets",
+      "named grid projects/interconnectors"
+    ],
+    "limits": "Planning/sector document. It is not an operational SCADA/EMS dataset.",
+    "source_url": "https://www.worldbank.org/content/dam/theworldbankgroupasset/document/2026/m300-energy-compacts/Botswana-National-Energy-Compact-Mission-300.pdf",
+    "catalog_origin": "Cross-check / authoritative sector benchmark"
+  },
+  {
+    "id": "nasa_power",
+    "name": "NASA POWER",
+    "source": "NASA",
+    "mode": "LIVE API",
+    "status": "connected",
+    "relevance": 9,
+    "used_for": [
+      "site solar radiation",
+      "temperature",
+      "wind",
+      "resource time series"
+    ],
+    "limits": "Planning-grade gridded meteorology; not a bankable on-site measurement campaign.",
+    "source_url": "https://power.larc.nasa.gov/",
+    "catalog_origin": "OIC2: NASA POWER & Earthdata"
+  },
+  {
+    "id": "global_solar_wind",
+    "name": "Global Solar Atlas + Global Wind Atlas",
+    "source": "World Bank/ESMAP + DTU",
+    "mode": "RASTER DOWNLOAD",
+    "status": "available-not-ingested",
+    "relevance": 10,
+    "used_for": [
+      "national solar suitability",
+      "PV output potential",
+      "wind screening"
+    ],
+    "limits": "Resource layers need local raster ingestion. Resource quality alone does not prove grid feasibility.",
+    "source_url": "https://globalsolaratlas.info/",
+    "catalog_origin": "OIC2: Global Solar Atlas & Global Wind Atlas"
+  },
+  {
+    "id": "worldpop",
+    "name": "WorldPop Botswana population API",
+    "source": "WorldPop / University of Southampton",
+    "mode": "LIVE SPATIAL API",
+    "status": "connected",
+    "relevance": 9,
+    "used_for": [
+      "population around selected sites",
+      "spatial demand-driver screening",
+      "community-fit evidence"
+    ],
+    "limits": "Population is modelled gridded population, not electrical load. API results must not be converted to MW without a documented demand-intensity model.",
+    "source_url": "https://api.worldpop.org/v2/",
+    "catalog_origin": "Original GridIQ dataset list: WorldPop \u2013 Botswana population/settlement layers"
+  },
+  {
+    "id": "meta_population",
+    "name": "Meta High Resolution Population Density \u2013 Botswana",
+    "source": "Meta / CIESIN",
+    "mode": "CSV/GIS DOWNLOAD",
+    "status": "available-not-ingested",
+    "relevance": 9,
+    "used_for": [
+      "settlement population density",
+      "spatial demand allocation",
+      "community fit"
+    ],
+    "limits": "Population is a demand driver, not metered electrical demand.",
+    "source_url": "https://dataforgood.facebook.com/dfg/tools/high-resolution-population-density-maps",
+    "catalog_origin": "OIC2 cross-cutting dataset"
+  },
+  {
+    "id": "census",
+    "name": "2022 Population and Housing Census",
+    "source": "Statistics Botswana",
+    "mode": "BUNDLED OFFICIAL DISTRICT TABLE",
+    "status": "integrated",
+    "relevance": 9,
+    "used_for": [
+      "2022 population baseline",
+      "district population distribution",
+      "spatial demand-context validation"
+    ],
+    "limits": "District population is a demand driver only. It is not electrical load or energy consumption.",
+    "source_url": "https://www.statsbots.org.bw/census-population-2022",
+    "catalog_origin": "OIC2 cross-cutting dataset"
+  },
+  {
+    "id": "stats_neus",
+    "name": "National Energy Use Survey 2022/23",
+    "source": "Statistics Botswana",
+    "mode": "BUNDLED OFFICIAL SURVEY TABLES",
+    "status": "integrated",
+    "relevance": 9,
+    "used_for": [
+      "district grid-connection rates",
+      "rural electrification gap",
+      "PV/biogas penetration",
+      "reasons households remain unconnected",
+      "household energy-use context"
+    ],
+    "limits": "Survey estimates are household energy/access evidence, not feeder or substation electrical load profiles.",
+    "source_url": "https://www.statsbots.org.bw/sites/default/files/National%20Energy%20Use%20Survey%202023.pdf",
+    "catalog_origin": "OIC2: National Energy Use Survey"
+  },
+  {
+    "id": "electrical_benchmark",
+    "name": "PyPSA-Earth / PyPSA standard transmission parameters",
+    "source": "PyPSA-Earth + PyPSA standard line-type registry",
+    "mode": "BUNDLED ENGINEERING BENCHMARK",
+    "status": "integrated-benchmark",
+    "relevance": 10,
+    "used_for": [
+      "OSM line R/X enrichment",
+      "benchmark thermal ratings",
+      "single-voltage DC transfer sensitivity",
+      "I\u00b2R loss sensitivity"
+    ],
+    "limits": "Not BPC asset data. Conductor type and circuit count remain assumptions where OSM does not map them; results are benchmark planning sensitivities only.",
+    "source_url": "https://pypsa-earth.readthedocs.io/en/latest/user-guide/configuration/",
+    "catalog_origin": "External benchmark used because public BPC electrical parameters are unavailable"
+  },
+  {
+    "id": "battery_benchmark",
+    "name": "Utility-scale BESS cost/performance benchmarks",
+    "source": "IRENA 2024 costs + NREL ATB",
+    "mode": "BUNDLED BENCHMARK",
+    "status": "integrated-benchmark",
+    "relevance": 10,
+    "used_for": [
+      "BESS cost range",
+      "round-trip efficiency",
+      "4-hour duration benchmark",
+      "storage scenario economics"
+    ],
+    "limits": "Global/US technology benchmarks; not Botswana procurement quotes or measured Botswana BESS performance.",
+    "source_url": "https://www.irena.org/Digital-Report/Renewable-Power-Generation-Costs-in-2024",
+    "catalog_origin": "OIC2 IRENA + external NREL benchmark where OIC2 lacks performance detail"
+  },
+  {
+    "id": "boundaries",
+    "name": "Botswana administrative boundaries",
+    "source": "Statistics Botswana / GADM fallback",
+    "mode": "SHP/GEOJSON DOWNLOAD",
+    "status": "available-not-ingested",
+    "relevance": 8,
+    "used_for": [
+      "district aggregation",
+      "choropleths",
+      "reporting boundaries"
+    ],
+    "limits": "Boundary vintage must be controlled; official Statistics Botswana geometry should take precedence when obtained.",
+    "source_url": "https://gadm.org/",
+    "catalog_origin": "OIC2 cross-cutting dataset"
+  },
+  {
+    "id": "roads_settlements",
+    "name": "OpenStreetMap / HDX Botswana roads and settlements",
+    "source": "OpenStreetMap / HDX",
+    "mode": "GIS EXTRACT",
+    "status": "available-not-ingested",
+    "relevance": 8,
+    "used_for": [
+      "site accessibility",
+      "settlement locations",
+      "grid-extension routing proxy"
+    ],
+    "limits": "Road distance is not a construction-cost model. Settlement attributes need cross-checking against census/gazetted-village sources.",
+    "source_url": "https://download.geofabrik.de/africa/botswana.html",
+    "catalog_origin": "OIC2 cross-cutting dataset"
+  },
+  {
+    "id": "del_benchmark",
+    "name": "Domestic Electrical Load (DEL) Study \u2013 South Africa",
+    "source": "Eskom / Stellenbosch University / UCT",
+    "mode": "REGIONAL BENCHMARK",
+    "status": "benchmark-not-ingested",
+    "relevance": 7,
+    "used_for": [
+      "future hourly residential load-shape benchmark when Botswana metering is unavailable"
+    ],
+    "limits": "South African historical residential proxy. It must never be presented as measured Botswana demand; raw profile not bundled yet.",
+    "source_url": "https://scholar.sun.ac.za/",
+    "catalog_origin": "External benchmark allowed because Botswana public hourly load data are missing"
+  },
+  {
+    "id": "wri_gppd",
+    "name": "WRI Global Power Plant Database \u2013 Botswana rows",
+    "source": "WRI / Power Africa",
+    "mode": "BUNDLED HISTORICAL REFERENCE",
+    "status": "integrated-reference",
+    "relevance": 6,
+    "used_for": [
+      "historical plant coordinates",
+      "cross-checking mapped generation assets"
+    ],
+    "limits": "Database is no longer actively maintained. Current Stats Botswana/BPC figures override it.",
+    "source_url": "https://github.com/wri/global-power-plant-database/blob/master/raw_source_files/WRI/Botswana.csv",
+    "catalog_origin": "OIC2: OpenInfraMap & Global Power Plant Database"
+  }
+]

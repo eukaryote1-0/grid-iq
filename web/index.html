@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GridIQ Botswana</title>
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<link rel="stylesheet" href="/static/css/app.css"/>
+</head>
+<body>
+<div class="shell">
+<header class="topbar">
+  <div class="brand"><div class="logo">⚡</div><div><b>GRID<span>IQ</span></b><small>BOTSWANA · SYSTEM PLANNING</small></div></div>
+  <nav id="nav"></nav>
+  <div class="topmeta"><span id="healthPill" class="pill neutral">API …</span><span id="vendorPill" class="pill neutral">Visual libs …</span><button id="dataBtn" class="btn subtle">Data evidence</button><div class="avatar">GI</div></div>
+</header>
+<div class="subbar"><div><small>NATIONAL ENERGY DIGITAL TWIN</small><h1 id="pageTitle">System Overview</h1></div><div class="sub-actions"><span class="updated" id="updatedAt">—</span><button class="btn primary" data-go="scenarios">Run scenario</button></div></div>
+<div class="evidence-banner"><strong>Evidence boundary:</strong> Official Botswana statistics are bundled as source snapshots; OSM provides mapped public infrastructure; NASA POWER is live planning-grade weather; benchmark values are labelled and benchmark power-flow results are separated from observed BPC state. Unknown BPC electrical values remain unknown.</div>
+<main id="workspace"></main>
+<footer><span>© GridIQ Botswana prototype</span><span>OpenStreetMap © contributors · Open data attribution shown in-app</span></footer>
+</div>
+<aside id="drawer" class="drawer" aria-hidden="true"><div class="drawer-head"><div><small id="drawerKicker">DETAIL</small><h2 id="drawerTitle">Selection</h2></div><button id="drawerClose" class="iconbtn">×</button></div><div id="drawerBody"></div></aside>
+<div id="backdrop" class="backdrop" hidden></div>
+<div id="toast" class="toast" hidden></div>
+<script>
+window.__GRID_BOOT_TIMER=setTimeout(function(){
+  if(window.__GRID_BOOTED) return;
+  var ws=document.getElementById('workspace');
+  if(ws && !ws.innerHTML.trim()){
+    ws.innerHTML='<section class="panel" style="margin:14px"><div class="panel-head"><h2>FRONTEND STARTUP DELAY</h2></div><div class="panel-body"><div class="callout warn"><b>The server is running, but the UI bootstrap did not complete.</b><p>Hard refresh with Ctrl+Shift+R. If this remains visible, open Developer Tools → Console and copy the first red error.</p></div></div></section>';
+  }
+},4000);
+window.addEventListener('error',function(e){window.__GRID_LAST_ERROR=e.message||'JavaScript error';});
+window.addEventListener('unhandledrejection',function(e){window.__GRID_LAST_ERROR=String(e.reason||'Unhandled promise rejection');});
+</script>
+<script defer src="/static/js/app.bundle.js?v=1.4.0"></script>
+</body>
+</html>

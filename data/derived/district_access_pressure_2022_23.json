@@ -1,0 +1,279 @@
+{
+  "dataset": "GridIQ district population + household grid-access context",
+  "version": "2026-09-13",
+  "synthetic": false,
+  "sources": [
+    "Statistics Botswana Annual Report 2022/23 (2022 PHC summary)",
+    "Statistics Botswana / Ministry of Minerals & Energy / BITRI"
+  ],
+  "transformation": {
+    "join": "Census 2022 district population joined to NEUS 2022/23 household grid-connection percentage by published district label.",
+    "explicit_label_normalizations": {
+      "Barolong": "Borolong",
+      "Serowe-Palapye": "Serowe Palapye",
+      "Ngamiland East": "Ngami East"
+    },
+    "formula_gap_index": "population_2022 * (1 - household_grid_connection_pct / 100)",
+    "formula_access_index": "population_2022 * household_grid_connection_pct / 100",
+    "interpretation": "The indices combine a people-count population with a household connection percentage and are prioritisation indicators only; they are NOT counts of connected or unconnected people/households."
+  },
+  "unmatched_census_districts": [
+    "Southern",
+    "Delta",
+    "CKGR"
+  ],
+  "records": [
+    {
+      "census_district": "Gaborone",
+      "population_2022": 246327,
+      "neus_district": "Gaborone",
+      "household_grid_connection_pct": 94.3,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 14040.6,
+      "population_weighted_access_index": 232286.4
+    },
+    {
+      "census_district": "Francistown",
+      "population_2022": 103416,
+      "neus_district": "Francistown",
+      "household_grid_connection_pct": 86.2,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 14271.4,
+      "population_weighted_access_index": 89144.6
+    },
+    {
+      "census_district": "Lobatse",
+      "population_2022": 29772,
+      "neus_district": "Lobatse",
+      "household_grid_connection_pct": 81.9,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 5388.7,
+      "population_weighted_access_index": 24383.3
+    },
+    {
+      "census_district": "Selibe Phikwe",
+      "population_2022": 42486,
+      "neus_district": "Selibe Phikwe",
+      "household_grid_connection_pct": 88.5,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 4885.9,
+      "population_weighted_access_index": 37600.1
+    },
+    {
+      "census_district": "Orapa",
+      "population_2022": 8648,
+      "neus_district": "Orapa",
+      "household_grid_connection_pct": 100.0,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 0.0,
+      "population_weighted_access_index": 8648.0
+    },
+    {
+      "census_district": "Jwaneng",
+      "population_2022": 18785,
+      "neus_district": "Jwaneng",
+      "household_grid_connection_pct": 91.2,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 1653.1,
+      "population_weighted_access_index": 17131.9
+    },
+    {
+      "census_district": "Sowa",
+      "population_2022": 3267,
+      "neus_district": "Sowa",
+      "household_grid_connection_pct": 100.0,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 0.0,
+      "population_weighted_access_index": 3267.0
+    },
+    {
+      "census_district": "Southern",
+      "population_2022": 139356,
+      "neus_district": null,
+      "household_grid_connection_pct": null,
+      "match_method": "unmatched",
+      "population_weighted_access_gap_index": null,
+      "population_weighted_access_index": null
+    },
+    {
+      "census_district": "Barolong",
+      "population_2022": 58904,
+      "neus_district": "Borolong",
+      "household_grid_connection_pct": 86.5,
+      "match_method": "explicit_label_normalization",
+      "population_weighted_access_gap_index": 7952.0,
+      "population_weighted_access_index": 50952.0
+    },
+    {
+      "census_district": "Ngwaketse West",
+      "population_2022": 23663,
+      "neus_district": "Ngwaketse West",
+      "household_grid_connection_pct": 14.3,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 20279.2,
+      "population_weighted_access_index": 3383.8
+    },
+    {
+      "census_district": "South East",
+      "population_2022": 111447,
+      "neus_district": "South East",
+      "household_grid_connection_pct": 85.2,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 16494.2,
+      "population_weighted_access_index": 94952.8
+    },
+    {
+      "census_district": "Kweneng East",
+      "population_2022": 330220,
+      "neus_district": "Kweneng East",
+      "household_grid_connection_pct": 82.8,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 56797.8,
+      "population_weighted_access_index": 273422.2
+    },
+    {
+      "census_district": "Kweneng West",
+      "population_2022": 57763,
+      "neus_district": "Kweneng West",
+      "household_grid_connection_pct": 38.2,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 35697.5,
+      "population_weighted_access_index": 22065.5
+    },
+    {
+      "census_district": "Kgatleng",
+      "population_2022": 121873,
+      "neus_district": "Kgatleng",
+      "household_grid_connection_pct": 77.0,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 28030.8,
+      "population_weighted_access_index": 93842.2
+    },
+    {
+      "census_district": "Serowe-Palapye",
+      "population_2022": 202741,
+      "neus_district": "Serowe Palapye",
+      "household_grid_connection_pct": 66.4,
+      "match_method": "explicit_label_normalization",
+      "population_weighted_access_gap_index": 68121.0,
+      "population_weighted_access_index": 134620.0
+    },
+    {
+      "census_district": "Central Mahalapye",
+      "population_2022": 131975,
+      "neus_district": "Central Mahalapye",
+      "household_grid_connection_pct": 59.9,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 52922.0,
+      "population_weighted_access_index": 79053.0
+    },
+    {
+      "census_district": "Central Bobonong",
+      "population_2022": 77504,
+      "neus_district": "Central Bobonong",
+      "household_grid_connection_pct": 54.7,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 35109.3,
+      "population_weighted_access_index": 42394.7
+    },
+    {
+      "census_district": "Central Boteti",
+      "population_2022": 74553,
+      "neus_district": "Central Boteti",
+      "household_grid_connection_pct": 77.5,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 16774.4,
+      "population_weighted_access_index": 57778.6
+    },
+    {
+      "census_district": "Central Tutume",
+      "population_2022": 164955,
+      "neus_district": "Central Tutume",
+      "household_grid_connection_pct": 54.9,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 74394.7,
+      "population_weighted_access_index": 90560.3
+    },
+    {
+      "census_district": "North East",
+      "population_2022": 69353,
+      "neus_district": "North East",
+      "household_grid_connection_pct": 88.6,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 7906.2,
+      "population_weighted_access_index": 61446.8
+    },
+    {
+      "census_district": "Ngamiland East",
+      "population_2022": 121396,
+      "neus_district": "Ngami East",
+      "household_grid_connection_pct": 75.6,
+      "match_method": "explicit_label_normalization",
+      "population_weighted_access_gap_index": 29620.6,
+      "population_weighted_access_index": 91775.4
+    },
+    {
+      "census_district": "Ngamiland West",
+      "population_2022": 74151,
+      "neus_district": "Ngamiland West",
+      "household_grid_connection_pct": 36.6,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 47011.7,
+      "population_weighted_access_index": 27139.3
+    },
+    {
+      "census_district": "Chobe",
+      "population_2022": 28742,
+      "neus_district": "Chobe",
+      "household_grid_connection_pct": 84.6,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 4426.3,
+      "population_weighted_access_index": 24315.7
+    },
+    {
+      "census_district": "Delta",
+      "population_2022": 2889,
+      "neus_district": null,
+      "household_grid_connection_pct": null,
+      "match_method": "unmatched",
+      "population_weighted_access_gap_index": null,
+      "population_weighted_access_index": null
+    },
+    {
+      "census_district": "Ghanzi",
+      "population_2022": 56077,
+      "neus_district": "Ghanzi",
+      "household_grid_connection_pct": 67.2,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 18393.3,
+      "population_weighted_access_index": 37683.7
+    },
+    {
+      "census_district": "CKGR",
+      "population_2022": 488,
+      "neus_district": null,
+      "household_grid_connection_pct": null,
+      "match_method": "unmatched",
+      "population_weighted_access_gap_index": null,
+      "population_weighted_access_index": null
+    },
+    {
+      "census_district": "Kgalagadi South",
+      "population_2022": 35346,
+      "neus_district": "Kgalagadi South",
+      "household_grid_connection_pct": 47.8,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 18450.6,
+      "population_weighted_access_index": 16895.4
+    },
+    {
+      "census_district": "Kgalagadi North",
+      "population_2022": 23512,
+      "neus_district": "Kgalagadi North",
+      "household_grid_connection_pct": 48.1,
+      "match_method": "exact",
+      "population_weighted_access_gap_index": 12202.7,
+      "population_weighted_access_index": 11309.3
+    }
+  ]
+}

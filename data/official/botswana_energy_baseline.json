@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "title": "Botswana electricity and grid baseline",
+    "compiled_at": "2026-09-13",
+    "synthetic": false,
+    "principle": "Every numeric value in this file is transcribed from a named public source. Model assumptions are stored separately under benchmarks.",
+    "sources": [
+      {
+        "id": "statsbots_q1_2026",
+        "publisher": "Statistics Botswana",
+        "title": "Electricity Generation and Distribution Stats Brief, First Quarter 2026",
+        "release_date": "2026-07-02",
+        "url": "https://www.statsbots.org.bw/sites/default/files/Electricity%20Generation%20and%20Distribution%20Stats%20Brief,%20First%20Quarter%202026.pdf",
+        "note": "Report states the underlying electricity data are sourced from Botswana Power Corporation."
+      },
+      {
+        "id": "sapp_demand_supply",
+        "publisher": "Southern African Power Pool",
+        "title": "Demand and Supply",
+        "url": "https://www.sapp.co.zw/demand-and-supply",
+        "note": "Current SAPP web-table snapshot used for BPC installed/operating capacity and peak demand."
+      },
+      {
+        "id": "botswana_energy_compact",
+        "publisher": "Government of Botswana / World Bank Group / African Development Bank Group",
+        "title": "National Energy Compact for Botswana",
+        "publication_period": "2025 compact; published in World Bank Mission 300 collection",
+        "url": "https://www.worldbank.org/content/dam/theworldbankgroupasset/document/2026/m300-energy-compacts/Botswana-National-Energy-Compact-Mission-300.pdf"
+      }
+    ]
+  },
+  "q1_2026": {
+    "local_generation_mwh": 901903.3,
+    "generation_mix_mwh": {
+      "coal": 818873.9,
+      "diesel": 509.5,
+      "solar": 82519.96
+    },
+    "generation_mix_pct": {
+      "coal": 90.8,
+      "diesel": 0.1,
+      "solar": 9.1
+    },
+    "imports_mwh": 220305.1,
+    "import_sources_mwh": {
+      "eskom_sa": 178274.4,
+      "sapp_markets": 17188.0,
+      "cross_border": 24842.6
+    },
+    "import_sources_pct": {
+      "eskom_sa": 80.9,
+      "sapp_markets": 7.8,
+      "cross_border": 11.3
+    },
+    "distribution_mwh": 1122208.3,
+    "local_generation_share_of_distribution_pct": 80.4
+  },
+  "quarterly": [
+    {"period":"2016 Q1","generation_mwh":443628,"imports_mwh":523736.0},
+    {"period":"2016 Q2","generation_mwh":486188,"imports_mwh":468852.0},
+    {"period":"2016 Q3","generation_mwh":661245,"imports_mwh":333355.0},
+    {"period":"2016 Q4","generation_mwh":783141,"imports_mwh":228543.0},
+    {"period":"2017 Q1","generation_mwh":698451,"imports_mwh":189052.0},
+    {"period":"2017 Q2","generation_mwh":675047,"imports_mwh":224318.0},
+    {"period":"2017 Q3","generation_mwh":893831,"imports_mwh":124611.9},
+    {"period":"2017 Q4","generation_mwh":752877,"imports_mwh":214135.0},
+    {"period":"2018 Q1","generation_mwh":682380,"imports_mwh":277270.0},
+    {"period":"2018 Q2","generation_mwh":819755,"imports_mwh":172457.0},
+    {"period":"2018 Q3","generation_mwh":774822,"imports_mwh":229427.0},
+    {"period":"2018 Q4","generation_mwh":452938,"imports_mwh":510297.6},
+    {"period":"2019 Q1","generation_mwh":776653,"imports_mwh":189065.1},
+    {"period":"2019 Q2","generation_mwh":403576,"imports_mwh":522021.5},
+    {"period":"2019 Q3","generation_mwh":467974,"imports_mwh":504115.3},
+    {"period":"2019 Q4","generation_mwh":556576,"imports_mwh":531036.3},
+    {"period":"2020 Q1","generation_mwh":481984,"imports_mwh":529351.6},
+    {"period":"2020 Q2","generation_mwh":399903,"imports_mwh":453732.6},
+    {"period":"2020 Q3","generation_mwh":604647,"imports_mwh":388904.7},
+    {"period":"2020 Q4","generation_mwh":517627,"imports_mwh":465701.1},
+    {"period":"2021 Q1","generation_mwh":589899,"imports_mwh":353247.6},
+    {"period":"2021 Q2","generation_mwh":505313,"imports_mwh":463170.7},
+    {"period":"2021 Q3","generation_mwh":579036,"imports_mwh":424702.8},
+    {"period":"2021 Q4","generation_mwh":469349,"imports_mwh":543416.8},
+    {"period":"2022 Q1","generation_mwh":638501,"imports_mwh":367000.6},
+    {"period":"2022 Q2","generation_mwh":937597,"imports_mwh":162339.9},
+    {"period":"2022 Q3","generation_mwh":789354,"imports_mwh":286170.8},
+    {"period":"2022 Q4","generation_mwh":807943,"imports_mwh":276257.2},
+    {"period":"2023 Q1","generation_mwh":890655,"imports_mwh":274978.4},
+    {"period":"2023 Q2","generation_mwh":660349,"imports_mwh":464602.9},
+    {"period":"2023 Q3","generation_mwh":889535,"imports_mwh":382426.2},
+    {"period":"2023 Q4","generation_mwh":654312,"imports_mwh":518669.0},
+    {"period":"2024 Q1","generation_mwh":791267,"imports_mwh":410020.0},
+    {"period":"2024 Q2","generation_mwh":799523,"imports_mwh":381764.0},
+    {"period":"2024 Q3","generation_mwh":988303,"imports_mwh":236075.0},
+    {"period":"2024 Q4","generation_mwh":849846,"imports_mwh":356682.0},
+    {"period":"2025 Q1","generation_mwh":522031,"imports_mwh":577466.0},
+    {"period":"2025 Q2","generation_mwh":635194,"imports_mwh":451754.0},
+    {"period":"2025 Q3","generation_mwh":606511,"imports_mwh":521003.0},
+    {"period":"2025 Q4","generation_mwh":751514,"imports_mwh":313630.0},
+    {"period":"2026 Q1","generation_mwh":901903,"imports_mwh":220305.0}
+  ],
+  "sapp_capacity": {
+    "installed_capacity_mw": 927,
+    "operating_capacity_mw": 459,
+    "current_peak_demand_mw": 610,
+    "peak_plus_reserves_mw": 698,
+    "capacity_shortfall_including_reserves_mw": -239
+  },
+  "grid": {
+    "transmission_km_by_voltage": {
+      "400_kv": 1027.0,
+      "220_kv": 1784.5,
+      "132_kv": 1833.10
+    },
+    "transmission_total_statement": "over 4,000 km as of March 2025",
+    "system_losses_pct_of_dispatched": 14.35,
+    "distribution_voltage_classes_kv": [66,33,11,0.4],
+    "operational_interconnectors": [
+      "Francistown (Botswana) – Marvel (Zimbabwe) 220 kV",
+      "Segoditshane (Botswana) – Spitskop (South Africa) 3 x 132 kV",
+      "Phokoje (Botswana) – Insukamini (Zimbabwe) 400 kV",
+      "Phokoje (Botswana) – Matimba (South Africa) 400 kV"
+    ],
+    "completed_named_projects": [
+      "Northwest Transmission Grid Connection Phase 1",
+      "Mochudi–Phakalane 132 kV line",
+      "Mochudi 132/33 kV substation",
+      "Ramotswa 132/33/11 kV substation",
+      "Tlokweng 132/11 kV substation"
+    ],
+    "planned_named_projects": [
+      "NWTGC Phase 2: 400 kV Phokoje–Dukwi–Pandamatenga",
+      "220 kV Pandamatenga–Kazungula",
+      "Dukwi 400/132 kV substation",
+      "Nata 132/33 kV substation",
+      "Pandamatenga 400/220 kV substation",
+      "Agro-commercial 220/33 kV substation",
+      "Kazungula 220/66/11 kV substation",
+      "Grid extension to Kgalagadi South with >500 km 220 kV transmission"
+    ]
+  },
+  "energy_compact": {
+    "electricity_access_pct_march_2025": 76.6,
+    "renewable_installed_share_pct_july_2025": 8.2,
+    "renewable_installed_mw_july_2025": 74.6,
+    "total_installed_capacity_mw_july_2025": 913,
+    "renewable_target_pct_2030_domestic_case": 50,
+    "renewable_target_mw_2030_domestic_case": 475,
+    "domestic_demand_reference_mw_2030": 950,
+    "demand_twh_2020": 4.038,
+    "demand_twh_2040_projection": 7.738
+  },
+  "census": {
+    "population_2022": 2359609,
+    "source": "Statistics Botswana 2022 Population and Housing Census"
+  }
+}

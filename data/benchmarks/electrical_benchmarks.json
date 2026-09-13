@@ -1,0 +1,132 @@
+{
+  "dataset": "GridIQ benchmark electrical parameter library",
+  "version": "2026-09-13",
+  "purpose": "Convert OSM-mapped Botswana transmission geometry into a planning-grade benchmark electrical model when BPC electrical parameters are unavailable. Values are engineering benchmarks, never observed BPC asset parameters.",
+  "sources": [
+    {
+      "name": "PyPSA-Earth configuration",
+      "url": "https://pypsa-earth.readthedocs.io/en/latest/user-guide/configuration/",
+      "use": "Voltage-to-standard-line-type mapping, s_max_pu=0.7, transformer benchmark x=0.1 p.u."
+    },
+    {
+      "name": "PyPSA standard line type register",
+      "url": "https://github.com/PyPSA/PyPSA/blob/master/pypsa/data/standard_types/line_types.csv",
+      "use": "Resistance, reactance and nominal current for named standard line types."
+    }
+  ],
+  "security_factor_s_max_pu": 0.7,
+  "base_mva": 100.0,
+  "voltage_classes": {
+    "132": {
+      "observed_voltage_kv": 132,
+      "cases": {
+        "conservative": {
+          "line_type": "149-AL1/24-ST1A 110.0",
+          "r_ohm_per_km": 0.194,
+          "x_ohm_per_km": 0.41,
+          "i_nom_ka": 0.47,
+          "note": "Lighter single conductor from PyPSA standard type register.",
+          "nominal_mva_single_circuit": 107.5,
+          "secure_mva_single_circuit": 75.2
+        },
+        "reference": {
+          "line_type": "243-AL1/39-ST1A 110.0",
+          "r_ohm_per_km": 0.1188,
+          "x_ohm_per_km": 0.39,
+          "i_nom_ka": 0.645,
+          "note": "Current PyPSA-Earth default mapping for 132 kV.",
+          "nominal_mva_single_circuit": 147.5,
+          "secure_mva_single_circuit": 103.2
+        },
+        "high_capacity": {
+          "line_type": "490-AL1/64-ST1A 110.0",
+          "r_ohm_per_km": 0.059,
+          "x_ohm_per_km": 0.37,
+          "i_nom_ka": 0.96,
+          "note": "Higher-current single-conductor sensitivity from PyPSA standard register.",
+          "nominal_mva_single_circuit": 219.5,
+          "secure_mva_single_circuit": 153.6
+        }
+      }
+    },
+    "220": {
+      "observed_voltage_kv": 220,
+      "cases": {
+        "conservative": {
+          "line_type": "490-AL1/64-ST1A 220.0",
+          "r_ohm_per_km": 0.059,
+          "x_ohm_per_km": 0.285,
+          "i_nom_ka": 0.96,
+          "note": "Single-conductor sensitivity.",
+          "nominal_mva_single_circuit": 365.8,
+          "secure_mva_single_circuit": 256.1
+        },
+        "reference": {
+          "line_type": "679-AL1/86-ST1A 220.0",
+          "r_ohm_per_km": 0.042,
+          "x_ohm_per_km": 0.275,
+          "i_nom_ka": 1.15,
+          "note": "Intermediate single-conductor sensitivity.",
+          "nominal_mva_single_circuit": 438.2,
+          "secure_mva_single_circuit": 306.7
+        },
+        "high_capacity": {
+          "line_type": "Al/St 240/40 2-bundle 220.0",
+          "r_ohm_per_km": 0.06,
+          "x_ohm_per_km": 0.301,
+          "i_nom_ka": 1.29,
+          "note": "PyPSA-Earth default 220 kV bundled line type.",
+          "nominal_mva_single_circuit": 491.6,
+          "secure_mva_single_circuit": 344.1
+        }
+      }
+    },
+    "400": {
+      "observed_voltage_kv": 400,
+      "benchmark_voltage_kv": 380,
+      "warning": "PyPSA's standard register uses 380 kV types. GridIQ retains the observed 400 kV network voltage and labels conductor parameters as a 380 kV benchmark proxy.",
+      "cases": {
+        "conservative": {
+          "line_type": "490-AL1/64-ST1A 380.0",
+          "r_ohm_per_km": 0.059,
+          "x_ohm_per_km": 0.253,
+          "i_nom_ka": 0.96,
+          "note": "380 kV standard type used as proxy for mapped 400 kV corridor.",
+          "nominal_mva_single_circuit": 665.1,
+          "secure_mva_single_circuit": 465.6
+        },
+        "reference": {
+          "line_type": "679-AL1/86-ST1A 380.0",
+          "r_ohm_per_km": 0.042,
+          "x_ohm_per_km": 0.25,
+          "i_nom_ka": 1.15,
+          "note": "380 kV standard type used as proxy for mapped 400 kV corridor.",
+          "nominal_mva_single_circuit": 796.7,
+          "secure_mva_single_circuit": 557.7
+        },
+        "high_capacity": {
+          "line_type": "Al/St 240/40 4-bundle 380.0",
+          "r_ohm_per_km": 0.03,
+          "x_ohm_per_km": 0.246,
+          "i_nom_ka": 2.58,
+          "note": "PyPSA-Earth default EHV bundled line type; mapped 400 kV voltage retained for rating calculation.",
+          "nominal_mva_single_circuit": 1787.5,
+          "secure_mva_single_circuit": 1251.2
+        }
+      }
+    }
+  },
+  "transformer_benchmark": {
+    "x_pu": 0.1,
+    "s_nom_mva": 2000,
+    "source": "PyPSA-Earth default transformer benchmark",
+    "status": "available_for_sensitivity_only",
+    "warning": "Not used as a claim about any BPC transformer; only a sensitivity placeholder if a future cross-voltage benchmark study is explicitly enabled."
+  },
+  "evidence_policy": {
+    "observed": "OSM geometry/tags and Botswana official statistics",
+    "derived": "Lengths, graph connectivity, nearest-node mapping and scenario outputs computed from observed inputs",
+    "benchmark": "Electrical parameters and security factors copied from documented external engineering libraries",
+    "unknown": "BPC conductor, exact circuits when not tagged, switch state, thermal rating, impedances, real loading and asset condition"
+  }
+}

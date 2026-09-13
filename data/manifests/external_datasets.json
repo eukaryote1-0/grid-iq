@@ -1,0 +1,67 @@
+{
+  "status": "generated",
+  "algorithm": "SHA-256",
+  "scope": "External datasets used by GridIQ that are not part of the OIC2-bundled evidence. Committed files are verified by scripts/verify_manifests.py; fetched files are checked after scripts/fetch_data.sh.",
+  "files": [
+    {
+      "path": "data/grid/botswana_osm_power_132_220_400.geojson",
+      "sha256": "28edbf4179c4f08d09ccfde89aee324cd68754e112997651852d03d194fb7782",
+      "bytes": 2625353,
+      "evidence_class": "observed_public_geometry",
+      "source": "OpenStreetMap via Overpass API (power=line, 132/220/400 kV)",
+      "source_url": "https://overpass-api.de/api/interpreter",
+      "licence": "ODbL-1.0 (OpenStreetMap)",
+      "note": "Filtered live extract fetched 2026-09-13. E2 primary topology."
+    },
+    {
+      "path": "data/grid/botswana_osm_substations.geojson",
+      "sha256": "dc816f92bdf90700504999a6219b0a5d28deee60fb26b524b95959ced3a4d6b6",
+      "bytes": 508913,
+      "evidence_class": "observed_public_geometry",
+      "source": "OpenStreetMap via Overpass API (power=substation)",
+      "source_url": "https://overpass-api.de/api/interpreter",
+      "licence": "ODbL-1.0 (OpenStreetMap)",
+      "note": "Demand allocation points for E2. Uniform allocation across snapped substations is a labelled assumption."
+    },
+    {
+      "path": "data/grid/botswana_grid.geojson",
+      "sha256": "8495bcde67c001e100c8a695d8e976f1d3d359260fa72a1942d838792603dc59",
+      "bytes": 32060,
+      "evidence_class": "observed_public_geometry",
+      "source": "World Bank / energydata.info — Botswana Electricity Transmission Network (BPA 2006 + Eskom Dec 2006)",
+      "source_url": "https://datacatalogfiles.worldbank.org/ddh-published/0040468/DR0050472/botswanagrid.geojson",
+      "licence": "CC-BY-4.0",
+      "note": "2006-vintage. Captures ~40% of the current 400/220/132 kV network; used as a cross-check and for cross-border/planned corridors, not as the primary topology."
+    },
+    {
+      "path": "data/benchmarks/botswana_techno_economic.xlsx",
+      "sha256": "447e17d6c9b1f37803282626a220df3f67690fa9489a84fd375134837953f157",
+      "bytes": 261018,
+      "evidence_class": "external_benchmark",
+      "source": "Zenodo / Loughborough University Climate Compatible Growth (OSeMOSYS/TEMBA)",
+      "source_url": "https://zenodo.org/api/records/10547474/files/Technoeconomic_data_assumptions_Botswana_v1.xlsx/content",
+      "licence": "CC-BY-4.0",
+      "note": "Botswana-specific techno-economic assumptions (T&D and plant costs, 2015-2050). Modelling assumptions, not BPC procurement data."
+    }
+  ],
+  "fetched_not_committed": [
+    {
+      "path": "data/grid/africa_grid_existing.geojson",
+      "sha256": "19850021ee0f3a79d8115dfb7aea93b38f83588fdf91c26be5bbf3784ce370db",
+      "bytes": 39774588,
+      "evidence_class": "benchmark_regional_geometry",
+      "source": "World Bank / ESMAP — Africa Electricity Transmission and Distribution Grid Map (2017)",
+      "source_url": "https://datacatalogfiles.worldbank.org/ddh-published/0040465/DR0050468/africagrid20170906existing.geojson",
+      "licence": "CC-BY-4.0"
+    },
+    {
+      "path": "data/grid/africa_grid_planned.geojson",
+      "sha256": "af53e3f95df38e1fd724d4296dea28565e4bfaef1b11ba1031fc3546caa641a5",
+      "bytes": 3291443,
+      "evidence_class": "benchmark_regional_geometry",
+      "source": "World Bank / ESMAP — Africa Electricity Transmission and Distribution Grid Map (2017)",
+      "source_url": "https://datacatalogfiles.worldbank.org/ddh-published/0040465/DR0050469/africagrid20170906planned.geojson",
+      "licence": "CC-BY-4.0"
+    }
+  ]
+}

@@ -1,0 +1,285 @@
+{
+  "dataset": "National Energy Use Survey 2022/23",
+  "source": "Statistics Botswana / Ministry of Minerals & Energy / BITRI",
+  "source_url": "https://www.statsbots.org.bw/sites/default/files/National%20Energy%20Use%20Survey%202023.pdf",
+  "release": "2024-08-30",
+  "survey_fieldwork": "2022-11-14 to 2023-02-17",
+  "synthetic": false,
+  "method_note": "Transcribed from published tables in the official NEUS 2022/23 report. Values are survey estimates, not utility meter readings.",
+  "national_access": {
+    "households_total": 634076,
+    "households_grid_connected": 468344,
+    "households_not_grid_connected": 165732,
+    "grid_connection_pct": 73.9,
+    "table_printed_households_total": 634150,
+    "total_discrepancy_note": "The published Table 14 national row prints 634,150 total households, while 468,344 connected + 165,732 not connected = 634,076 and the report narrative also states 634,076. GridIQ preserves 634,076 as the internally consistent total and records the printed table total separately."
+  },
+  "grid_connection_by_district": [
+    {
+      "district": "Gaborone",
+      "connected": 69357,
+      "connected_pct": 94.3,
+      "not_connected": 4172,
+      "households": 73540
+    },
+    {
+      "district": "Francistown",
+      "connected": 25217,
+      "connected_pct": 86.2,
+      "not_connected": 4022,
+      "households": 29243
+    },
+    {
+      "district": "Lobatse",
+      "connected": 8239,
+      "connected_pct": 81.9,
+      "not_connected": 1818,
+      "households": 10058
+    },
+    {
+      "district": "Selibe Phikwe",
+      "connected": 8794,
+      "connected_pct": 88.5,
+      "not_connected": 1138,
+      "households": 9933
+    },
+    {
+      "district": "Orapa",
+      "connected": 2365,
+      "connected_pct": 100.0,
+      "not_connected": 0,
+      "households": 2365
+    },
+    {
+      "district": "Jwaneng",
+      "connected": 6293,
+      "connected_pct": 91.2,
+      "not_connected": 607,
+      "households": 6901
+    },
+    {
+      "district": "Sowa",
+      "connected": 1014,
+      "connected_pct": 100.0,
+      "not_connected": 0,
+      "households": 1014
+    },
+    {
+      "district": "Ngwaketse South",
+      "connected": 20561,
+      "connected_pct": 62.9,
+      "not_connected": 12110,
+      "households": 32674
+    },
+    {
+      "district": "Borolong",
+      "connected": 14698,
+      "connected_pct": 86.5,
+      "not_connected": 2282,
+      "households": 16982
+    },
+    {
+      "district": "Ngwaketse West",
+      "connected": 626,
+      "connected_pct": 14.3,
+      "not_connected": 3739,
+      "households": 4365
+    },
+    {
+      "district": "South East",
+      "connected": 28931,
+      "connected_pct": 85.2,
+      "not_connected": 5004,
+      "households": 33940
+    },
+    {
+      "district": "Kweneng East",
+      "connected": 70406,
+      "connected_pct": 82.8,
+      "not_connected": 14653,
+      "households": 85070
+    },
+    {
+      "district": "Kweneng West",
+      "connected": 6451,
+      "connected_pct": 38.2,
+      "not_connected": 10456,
+      "households": 16908
+    },
+    {
+      "district": "Kgatleng",
+      "connected": 24591,
+      "connected_pct": 77.0,
+      "not_connected": 7337,
+      "households": 31932
+    },
+    {
+      "district": "Serowe Palapye",
+      "connected": 37500,
+      "connected_pct": 66.4,
+      "not_connected": 18981,
+      "households": 56487
+    },
+    {
+      "district": "Central Mahalapye",
+      "connected": 21671,
+      "connected_pct": 59.9,
+      "not_connected": 14480,
+      "households": 36154
+    },
+    {
+      "district": "Central Bobonong",
+      "connected": 9985,
+      "connected_pct": 54.7,
+      "not_connected": 8260,
+      "households": 18247
+    },
+    {
+      "district": "Central Boteti",
+      "connected": 19627,
+      "connected_pct": 77.5,
+      "not_connected": 5703,
+      "households": 25333
+    },
+    {
+      "district": "Central Tutume",
+      "connected": 21066,
+      "connected_pct": 54.9,
+      "not_connected": 17288,
+      "households": 38357
+    },
+    {
+      "district": "North East",
+      "connected": 18126,
+      "connected_pct": 88.6,
+      "not_connected": 2340,
+      "households": 20469
+    },
+    {
+      "district": "Ngami East",
+      "connected": 22931,
+      "connected_pct": 75.6,
+      "not_connected": 7396,
+      "households": 30331
+    },
+    {
+      "district": "Ngamiland West",
+      "connected": 5728,
+      "connected_pct": 36.6,
+      "not_connected": 9904,
+      "households": 15633
+    },
+    {
+      "district": "Chobe",
+      "connected": 9009,
+      "connected_pct": 84.6,
+      "not_connected": 1641,
+      "households": 10651
+    },
+    {
+      "district": "Ghanzi",
+      "connected": 6792,
+      "connected_pct": 67.2,
+      "not_connected": 3317,
+      "households": 10110
+    },
+    {
+      "district": "Kgalagadi South",
+      "connected": 4475,
+      "connected_pct": 47.8,
+      "not_connected": 4882,
+      "households": 9358
+    },
+    {
+      "district": "Kgalagadi North",
+      "connected": 3891,
+      "connected_pct": 48.1,
+      "not_connected": 4202,
+      "households": 8094
+    }
+  ],
+  "renewable_technology_penetration_by_locality": [
+    {
+      "locality": "Cities & Towns",
+      "pv_households": 1595,
+      "pv_share_pct": 5.5,
+      "solar_water_heater_households": 4100,
+      "solar_water_heater_share_pct": 34.8,
+      "biogas_households": 0,
+      "biogas_share_pct": 0.0
+    },
+    {
+      "locality": "Urban Villages",
+      "pv_households": 4987,
+      "pv_share_pct": 17.0,
+      "solar_water_heater_households": 5617,
+      "solar_water_heater_share_pct": 47.7,
+      "biogas_households": 0,
+      "biogas_share_pct": 0.0
+    },
+    {
+      "locality": "Rural Villages",
+      "pv_households": 22674,
+      "pv_share_pct": 77.5,
+      "solar_water_heater_households": 2058,
+      "solar_water_heater_share_pct": 17.5,
+      "biogas_households": 216,
+      "biogas_share_pct": 100.0
+    }
+  ],
+  "reasons_not_connected_by_locality": [
+    {
+      "locality": "Cities & Towns",
+      "lack_funds_wiring": 1283,
+      "lack_funds_connection": 4015,
+      "far_from_lines": 0,
+      "using_renewable_offgrid": 0,
+      "choice_offgrid": 0,
+      "other": 6458,
+      "total": 11756
+    },
+    {
+      "locality": "Urban Villages",
+      "lack_funds_wiring": 10607,
+      "lack_funds_connection": 16752,
+      "far_from_lines": 166,
+      "using_renewable_offgrid": 0,
+      "choice_offgrid": 25,
+      "other": 8166,
+      "total": 35716
+    },
+    {
+      "locality": "Rural Villages",
+      "lack_funds_wiring": 19538,
+      "lack_funds_connection": 35234,
+      "far_from_lines": 51311,
+      "using_renewable_offgrid": 900,
+      "choice_offgrid": 994,
+      "other": 10282,
+      "total": 118259
+    },
+    {
+      "locality": "National Level",
+      "lack_funds_wiring": 31428,
+      "lack_funds_connection": 56001,
+      "far_from_lines": 51477,
+      "using_renewable_offgrid": 900,
+      "choice_offgrid": 1019,
+      "other": 24906,
+      "total": 165731
+    }
+  ],
+  "energy_context": {
+    "average_household_energy_tj": {
+      "cities_towns": 0.039,
+      "urban_villages": 0.065,
+      "rural_villages": 0.076,
+      "national": 0.063
+    },
+    "lighting_grid_electricity_share_pct": {
+      "cities_towns": 90.6,
+      "urban_villages": 87.6,
+      "rural_villages": 41.9
+    }
+  }
+}

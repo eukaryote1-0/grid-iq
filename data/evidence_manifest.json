@@ -1,0 +1,62 @@
+{
+  "status": "generated",
+  "algorithm": "SHA-256",
+  "scope": "bundled GridIQ data evidence/reference/benchmark/derived files",
+  "recursive_self_hashing": false,
+  "files": [
+    {
+      "path": "data/benchmarks/electrical_benchmarks.json",
+      "sha256": "10535da76fdaed4a70660d28b1ec42090b9caf083f8f88866c013be7b25009ec",
+      "bytes": 5340,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/storage_benchmarks.json",
+      "sha256": "21d4283ce72b6b2278515c9cd474f8ee67adc4724dbc1224568ffbcd5ca8c104",
+      "bytes": 1049,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/catalog.json",
+      "sha256": "3f892af00cb369c14c1f3ff0300f81d59f369efe1c4d79dfc81a4cbe62d579e1",
+      "bytes": 10307,
+      "evidence_class": "dataset_catalog"
+    },
+    {
+      "path": "data/derived/district_access_pressure_2022_23.json",
+      "sha256": "29a46d5ed62b441c51da7d1e03ad4ec784969ea87d2edad5b50d73574e62ac31",
+      "bytes": 9603,
+      "evidence_class": "derived_data_product"
+    },
+    {
+      "path": "data/official/botswana_census_district_population_2022.json",
+      "sha256": "e85c162fdea91f5e060df423eb33833533c15f9aa584457ec39fa7dd1a8631ab",
+      "bytes": 1878,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/botswana_energy_baseline.json",
+      "sha256": "60af1c49144a790ad586c12640d5e6dd7f3808db6c91c94672aa7f8a96b4d1b7",
+      "bytes": 7273,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/botswana_neus_2022_23.json",
+      "sha256": "4d89d2fce21d397e1130560742d9c96ff8cac89837cc2afb23680882ac2f3559",
+      "bytes": 7326,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/reference/wri_gppd_botswana_historical.json",
+      "sha256": "7f26262c38276d3b8dd0da5015093107e8a6e4f6b9e3dece8be0be15c2d762ff",
+      "bytes": 951,
+      "evidence_class": "historical_reference"
+    },
+    {
+      "path": "data/source_manifest.csv",
+      "sha256": "0653341e08b30afe1db0e1c198aebd3d04e38d8250f6023c692a2345fd7e95cd",
+      "bytes": 6946,
+      "evidence_class": "provenance_index"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Versions selected for Python 3.14 compatibility (Sep 2026).
+# Keep uvicorn free of [standard] extras so startup does not require native compilers.
+fastapi==0.141.1
+uvicorn==0.35.0
+httpx==0.28.1
+pydantic==2.13.5
+# Vectorised sparse matvec for the E2 DC power-flow screen (wheels available).
+numpy==2.5.3
+scipy==1.18.1

@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "synthetic": false,
+    "status": "historical-reference",
+    "warning": "The WRI Global Power Plant Database repository is no longer actively maintained. These rows are useful for geolocation/reference only and must not override current Botswana statistics.",
+    "source": "WRI Global Power Plant Database raw Botswana source file",
+    "url": "https://github.com/wri/global-power-plant-database/blob/master/raw_source_files/WRI/Botswana.csv"
+  },
+  "plants": [
+    {"name":"Sua Pan Soda Ash","fuel":"Coal","capacity_mw":14,"status":"Operational","latitude":-21.1666667,"longitude":27.5166667,"source":"African Development Bank Group / Power Africa"},
+    {"name":"Morpule","display_name":"Morupule (source spelling: Morpule)","fuel":"Coal","capacity_mw":732,"status":"Operational","owner":"Botswana Power Corporation","latitude":-22.522316,"longitude":27.049053,"source":"African Development Bank Group / Power Africa"}
+  ]
+}
