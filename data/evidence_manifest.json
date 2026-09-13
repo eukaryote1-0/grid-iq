@@ -54,8 +54,8 @@
     },
     {
       "path": "data/source_manifest.csv",
-      "sha256": "0653341e08b30afe1db0e1c198aebd3d04e38d8250f6023c692a2345fd7e95cd",
-      "bytes": 6946,
+      "sha256": "9e2d770099c897984e48f55a8c066d22bf0f47121fcc24074cc4dca55c210ffb",
+      "bytes": 6929,
       "evidence_class": "provenance_index"
     }
   ]
