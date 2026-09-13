@@ -2,7 +2,8 @@
 
 > **Repository:** `eukaryote1-0/grid-iq` (private) · **Team:** Eukaryote1.0
 > **Before contributing:** `CONTRIBUTING.md`, `AGENTS.md`, `.ai/START_HERE.md`
-> `main` requires a pull request; CI must pass. Large datasets are fetched with `make data`.
+> Land changes via PR with green CI (branch protection needs a paid plan for private repos).
+> Large datasets are fetched with `make data`.
 
 GridIQ is a national energy-planning prototype that treats **generation + storage + grid + demand** as one planning problem while keeping observed Botswana evidence, deterministic derivations, external engineering benchmarks, model outputs and unknowns visibly separate.
 

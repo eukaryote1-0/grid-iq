@@ -16,13 +16,7 @@ test: pycompile jscheck ## Run the full validation suite
 	pytest -q
 
 pycompile: ## Byte-compile all Python sources
-	python - <<'PY'
-import compileall, sys
-ok = True
-for d in ('app', 'engines', 'tests'):
-    ok = compileall.compile_dir(d, quiet=1) and ok
-sys.exit(0 if ok else 1)
-PY
+	python -m compileall -q app engines tests
 
 jscheck: ## Syntax-check the frontend bundle
 	node --check web/js/app.bundle.js

@@ -20,7 +20,10 @@ See `.ai/CONVENTIONS.md` and `.ai/DECISIONS.md` for the full record.
 
 ## Workflow
 
-- `main` is protected: **all changes land through a pull request**, and CI must pass.
+- `main` is the shared branch: **all changes land through a pull request with a
+  green CI run**. (GitHub branch protection is unavailable for private repos on
+  the org's free plan, so this is enforced by team process and review until the
+  repo is upgraded or made public.)
 - Keep branches short-lived and scoped to one concern.
 - After every change the repository must stay green:
 
