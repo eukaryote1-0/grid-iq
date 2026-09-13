@@ -1,0 +1,27 @@
+{
+  "pass": true,
+  "version": "1.7.0",
+  "at": "2026-09-13T07:01:28.016939+00:00",
+  "pages": [
+    "overview",
+    "network",
+    "optimizer",
+    "criticality",
+    "villagefit",
+    "data",
+    "audit"
+  ],
+  "screenshots": [
+    "01-overview.png",
+    "02-network.png",
+    "02b-e2-loss.png",
+    "03-optimizer.png",
+    "03b-e1-ab.png",
+    "04-criticality.png",
+    "04b-e3.png",
+    "05-villagefit.png",
+    "05b-villagefit.png",
+    "06-data.png",
+    "07-audit.png"
+  ]
+}

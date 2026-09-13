@@ -1,0 +1,41 @@
+{
+  "scenarios": {
+    "A": {
+      "total_annual_screen_cost_usd": 64092539.0,
+      "imports_avoided_mwh": 1863853.0,
+      "solar_mw": 990.12,
+      "bess_mwh": 0.0
+    },
+    "B": {
+      "total_annual_screen_cost_usd": 68489068.0,
+      "imports_avoided_mwh": 1863853.0,
+      "solar_mw": 990.12,
+      "bess_mwh": 196.0
+    },
+    "delta_cost_a_minus_b_usd": -4396529.0
+  },
+  "loss": {
+    "model_gwh_range": [
+      48.7,
+      87.7
+    ],
+    "bpc_2023_gwh": 642,
+    "bpc_2024_gwh": 793
+  },
+  "e2_system": {
+    "supported": true,
+    "max_benchmark_utilization_pct": 46.24,
+    "approx_total_i2r_loss_mw": 1.9679
+  },
+  "e3": {
+    "watchlist": 20,
+    "bridges_total": 61899
+  },
+  "e4_village": {
+    "name": "Ukhwi",
+    "solar_pv_mw_screen": 0.0862,
+    "bess_mwh_screen": 0.34,
+    "grid_km": 147.34
+  },
+  "pilot_villages_scored": 6
+}
