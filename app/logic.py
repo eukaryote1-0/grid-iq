@@ -418,10 +418,14 @@ def enrich_power_geojson(fc: dict[str, Any], case: str = "reference") -> dict[st
     }
 
 
+NODE_SNAP_PLACES = 3  # ~100 m: heal small OSM junction gaps (labelled modelling assumption)
+
+
 def _node_key(coord: list[float]) -> tuple[float, float]:
-    # ~11 m longitude precision at the equator; sufficiently strict to avoid
-    # falsely joining unrelated corridors while absorbing float noise.
-    return (round(float(coord[0]), 4), round(float(coord[1]), 4))
+    # Vertices are snapped to ~100 m so mapped segments that meet at a junction
+    # with sub-100 m coordinate gaps form one electrical graph. This is a
+    # labelled planning assumption, not a BPC bus reconciliation.
+    return (round(float(coord[0]), NODE_SNAP_PLACES), round(float(coord[1]), NODE_SNAP_PLACES))
 
 
 def _benchmark_branches(fc: dict[str, Any], voltage_kv: int, case: str) -> list[dict[str, Any]]:
@@ -442,35 +446,43 @@ def _benchmark_branches(fc: dict[str, Any], voltage_kv: int, case: str) -> list[
         coords = geom.get("coordinates", [])
         if len(coords) < 2:
             continue
-        length_km = _line_length_km(coords)
-        if length_km <= 0:
-            continue
         circuits, circuits_status = _parse_circuits(props.get("circuits"))
-        r_ohm = params["r_ohm_per_km"] * length_km / circuits
-        x_ohm = params["x_ohm_per_km"] * length_km / circuits
-        x_pu = x_ohm / zbase
-        if x_pu <= 0:
-            continue
         nominal_mva = math.sqrt(3) * voltage_kv * params["i_nom_ka"] * circuits
         secure_mva = nominal_mva * params["security_factor_s_max_pu"]
-        branches.append({
-            "feature_id": feature.get("id"),
-            "name": props.get("name") or feature.get("id") or "Mapped line",
-            "from": _node_key(coords[0]),
-            "to": _node_key(coords[-1]),
-            "from_coord": coords[0],
-            "to_coord": coords[-1],
-            "length_km": length_km,
-            "r_ohm": r_ohm,
-            "x_ohm": x_ohm,
-            "x_pu": x_pu,
-            "secure_rating_mw": secure_mva,  # DC active-power screening approximation
-            "nominal_mva": nominal_mva,
-            "circuits": circuits,
-            "circuits_status": circuits_status,
-            "line_type": params["line_type"],
-            "voltage_kv": voltage_kv,
-        })
+        # Emit one branch per mapped vertex pair so segments that meet at an
+        # interior junction vertex form a connected graph. Endpoint-only
+        # branches fragment the national network at shared crossing vertices.
+        emitted = 0
+        for a, b in zip(coords, coords[1:]):
+            length_km = _line_length_km([a, b])
+            if length_km <= 0:
+                continue
+            r_ohm = params["r_ohm_per_km"] * length_km / circuits
+            x_ohm = params["x_ohm_per_km"] * length_km / circuits
+            x_pu = x_ohm / zbase
+            if x_pu <= 0:
+                continue
+            branches.append({
+                "feature_id": feature.get("id"),
+                "name": props.get("name") or feature.get("id") or "Mapped line",
+                "from": _node_key(a),
+                "to": _node_key(b),
+                "from_coord": a,
+                "to_coord": b,
+                "length_km": length_km,
+                "r_ohm": r_ohm,
+                "x_ohm": x_ohm,
+                "x_pu": x_pu,
+                "secure_rating_mw": secure_mva,  # DC active-power screening approximation
+                "nominal_mva": nominal_mva,
+                "circuits": circuits,
+                "circuits_status": circuits_status,
+                "line_type": params["line_type"],
+                "voltage_kv": voltage_kv,
+            })
+            emitted += 1
+        if emitted == 0:
+            continue
     return branches
 
 
@@ -733,8 +745,32 @@ def benchmark_multi_injection_study(
         aggregated[m["node"]]=aggregated.get(m["node"],0.0)+m["input"]["mw"]
     for node,mw in aggregated.items():
         if node!=slack: rhs[idx[node]] += mw/base_mva
-    theta_vec,iterations,residual=_cg_solve(matvec,rhs)
-    theta={slack:0.0,**{n:theta_vec[i] for n,i in idx.items()}}
+    solver_name = "pure-python-cg"
+    try:
+        import numpy as np
+        from scipy.sparse import csr_matrix
+        from scipy.sparse.linalg import spsolve
+        n = len(active) + 1
+        rows=[];cols=[];vals=[];diag=[0.0]*n
+        node_pos={node:i for i,node in enumerate(component_nodes)}
+        slackpos=node_pos[slack]
+        for br in component_branches:
+            i=node_pos[br["from"]]; j=node_pos[br["to"]]; b=1.0/br["x_pu"]
+            rows += [i, j]; cols += [j, i]; vals += [-b, -b]
+            diag[i]+=b; diag[j]+=b
+        L = csr_matrix((vals,(rows,cols)),shape=(n,n)) + csr_matrix((diag,(range(n),range(n))),shape=(n,n))
+        rhs_full=np.zeros(n)
+        for node,mw in aggregated.items():
+            if node!=slack: rhs_full[node_pos[node]] += mw/base_mva
+        L=L.tolil(); L[slackpos,:]=0.0; L[slackpos,slackpos]=1.0; rhs_full[slackpos]=0.0; L=L.tocsr()
+        theta_full=spsolve(L, rhs_full)
+        if not np.all(np.isfinite(theta_full)):
+            raise RuntimeError("sparse solve returned non-finite values")
+        theta={node: float(theta_full[node_pos[node]]) for node in component_nodes}
+        iterations=1; residual=0.0; solver_name="scipy-sparse-direct"
+    except Exception:
+        theta_vec,iterations,residual=_cg_solve(matvec,rhs)
+        theta={slack:0.0,**{n:theta_vec[i] for n,i in idx.items()}}
     flows=[]; total_loss=0.0
     for br in component_branches:
         flow_pu=(theta[br["from"]]-theta[br["to"]])/br["x_pu"]; flow_mw=flow_pu*base_mva
@@ -748,7 +784,7 @@ def benchmark_multi_injection_study(
         "inputs":{"voltage_kv":voltage_kv,"case":case,"net_injection_mw":round(total,6)},
         "mapped_injections":[{"name":m["input"].get("name"),"mw":m["input"]["mw"],"nearest":{"lon":m["node"][0],"lat":m["node"][1]},"distance_km":round(m["distance_km"],2),"component":m["component"]} for m in mapped],
         "network_scope":{"component_nodes":len(component_nodes),"component_branches":len(component_branches),"all_mapped_components_at_voltage":len(comps)},
-        "summary":{"max_benchmark_utilization_pct":flows[0]["utilization_pct"] if flows else 0.0,"branches_at_or_above_100_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=100),"branches_at_or_above_80_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=80),"approx_total_i2r_loss_mw":round(total_loss,4),"cg_iterations":iterations,"solver_residual":residual},
+        "summary":{"max_benchmark_utilization_pct":flows[0]["utilization_pct"] if flows else 0.0,"branches_at_or_above_100_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=100),"branches_at_or_above_80_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=80),"approx_total_i2r_loss_mw":round(total_loss,4),"cg_iterations":iterations,"solver_residual":residual,"solver":solver_name},
         "flows":flows,"top_flows":flows[:30],
         "meta":{"evidence_class":"model_output_from_observed_geometry_plus_benchmark_parameters_plus_explicit_or_derived_scenario_injections","not":"measured BPC dispatch, measured line loading, real-time congestion, validated AC power flow or operational OPF","warning":"Use this to test planning cases. If injection values come from benchmark/modelled demand, preserve that provenance in the calling workflow."}
     }

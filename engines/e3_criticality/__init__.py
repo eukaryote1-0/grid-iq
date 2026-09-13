@@ -29,36 +29,71 @@ def _graph_from_power_geojson(fc: dict[str, Any], voltage_kv: int | None = None)
 
 
 def _bridges_and_articulations(adj: dict[tuple[float, float], set[tuple[float, float]]]):
-    time_idx = 0
+    """Bridge/articulation detection.
+
+    Uses networkx when available; otherwise an iterative Tarjan DFS. The pure
+    Python path is iterative on purpose: the mapped national graph is large
+    enough (~10^4 nodes) to overflow a recursive DFS.
+    """
+    try:
+        import networkx as nx
+
+        G = nx.Graph()
+        for u, nbrs in adj.items():
+            for v in nbrs:
+                if u <= v:
+                    G.add_edge(u, v)
+        return [tuple(b) for b in nx.bridges(G)], set(nx.articulation_points(G))
+    except Exception:
+        return _tarjan_iterative(adj)
+
+
+def _tarjan_iterative(adj: dict[Any, set[Any]]):
     disc: dict[Any, int] = {}
     low: dict[Any, int] = {}
     parent: dict[Any, Any] = {}
     bridges: list[tuple[Any, Any]] = []
     arts: set[Any] = set()
+    timer = 0
 
-    def dfs(u):
-        nonlocal time_idx
-        children = 0
-        time_idx += 1
-        disc[u] = low[u] = time_idx
-        for v in adj.get(u, set()):
-            if v not in disc:
-                parent[v] = u
-                children += 1
-                dfs(v)
-                low[u] = min(low[u], low[v])
-                if u not in parent and children > 1:
-                    arts.add(u)
-                if u in parent and low[v] >= disc[u]:
-                    arts.add(u)
-                if low[v] > disc[u]:
-                    bridges.append((u, v))
-            elif parent.get(u) != v:
-                low[u] = min(low[u], disc[v])
-
-    for u in adj:
-        if u not in disc:
-            dfs(u)
+    for root in adj:
+        if root in disc:
+            continue
+        disc[root] = low[root] = timer
+        timer += 1
+        parent[root] = None
+        root_children = 0
+        stack: list[tuple[Any, Any]] = [(root, iter(adj.get(root, ())))]
+        while stack:
+            u, it = stack[-1]
+            advanced = False
+            for v in it:
+                if v not in disc:
+                    parent[v] = u
+                    if parent[u] is None:
+                        root_children += 1
+                    disc[v] = low[v] = timer
+                    timer += 1
+                    stack[-1] = (u, it)
+                    stack.append((v, iter(adj.get(v, ()))))
+                    advanced = True
+                    break
+                if v != parent.get(u) and disc[v] < low[u]:
+                    low[u] = disc[v]
+            if advanced:
+                continue
+            stack.pop()
+            if stack:
+                p = stack[-1][0]
+                if low[u] < low[p]:
+                    low[p] = low[u]
+                if parent.get(u) == p:
+                    if low[u] > disc[p]:
+                        bridges.append((p, u))
+                    if parent.get(p) is not None and low[u] >= disc[p]:
+                        arts.add(p)
+        if root_children > 1:
+            arts.add(root)
     return bridges, arts
 
 
@@ -103,7 +138,14 @@ def structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = 
         for n in c: comp_of[n] = idx
 
     watch = []
-    for u, v in bridges:
+    # Detailed islanding analysis is expensive (BFS per bridge). Restrict it to
+    # bridges in substantial components and cap the count; the full bridge count
+    # is still reported so the screen is honest about what was ranked.
+    BRIDGE_ANALYSIS_CAP = 150
+    big_components = {idx for idx, c in enumerate(comps) if len(c) >= 200}
+    candidates = [(u, v) for (u, v) in bridges if comp_of.get(u) in big_components]
+    candidates.sort(key=lambda uv: len(comps[comp_of[uv[0]]]), reverse=True)
+    for u, v in candidates[:BRIDGE_ANALYSIS_CAP]:
         comp = comps[comp_of[u]]
         side = _component_nodes(adj, u, blocked_edge=frozenset((u, v)))
         other = comp - side
@@ -160,7 +202,10 @@ def structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = 
         betweenness_method = f"not available in runtime: {type(exc).__name__}"
 
     art_rows = []
-    for n in arts:
+    ART_ANALYSIS_CAP = 75
+    art_candidates = [n for n in arts if comp_of.get(n) in big_components]
+    art_candidates.sort(key=lambda n: len(comps[comp_of[n]]), reverse=True)
+    for n in art_candidates[:ART_ANALYSIS_CAP]:
         comp = comps[comp_of[n]]
         # count fragments after node removal within its component
         remaining = set(comp) - {n}
@@ -187,10 +232,17 @@ def structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = 
         "graph": {"nodes": len(adj), "segments": sum(len(v) for v in adj.values()) // 2, "components": len(comps)},
         "bridge_count": len(bridges),
         "articulation_point_count": len(arts),
+        "analysis_caps": {
+            "bridges_total": len(bridges),
+            "bridges_analysed": min(len(candidates), BRIDGE_ANALYSIS_CAP),
+            "articulation_points_total": len(arts),
+            "articulation_points_analysed": min(len(art_candidates), ART_ANALYSIS_CAP),
+            "rule": "Detailed islanding analysis is capped to large components for responsiveness; the full counts are reported.",
+        },
         "watchlist": watch[:max(1, min(limit, 200))],
         "articulation_points": art_rows[:max(1, min(limit, 200))],
         "edge_betweenness": betweenness_rows[:max(1, min(limit, 200))],
         "method": "Tarjan bridge/articulation analysis + deterministic N-1 geometry partition size + " + betweenness_method,
-        "evidence_boundary": "Topology-only structural criticality. No asset age, condition, failure probability, thermal stress, customer count or measured load is inferred.",
+        "evidence_boundary": "Topology-only structural criticality. No asset age, condition, failure probability, thermal stress, customer count or measured load is inferred. Segments are mapped vertex pairs; contiguous bridge chains are not yet aggregated into single corridors.",
         "data_contract": "/docs/data_contracts/BPC_ENGINEERING_DATA_CONTRACT.md",
     }

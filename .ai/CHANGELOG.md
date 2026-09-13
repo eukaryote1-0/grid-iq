@@ -91,3 +91,17 @@
 
 ### Docs
 - Solutions Report: added three user journeys (planner, community, custodian) modelled on BEAM's flow sections; split the technology stack into implemented-today vs target architecture; surfaced the 2024 BPC loss figure (793 GWh / 16.62%) now that it is sourced.
+
+## 2026-09-13 — demo build-out (branch feat/demo-ui)
+
+### Added
+- Offline demo harness: `scripts/build_demo_fixtures.py`, `scripts/prewarm_demo.py`, `scripts/demo.sh`, `data/demo/scenarios_demo.json` and committed NASA fixtures for the six pilot villages.
+- `tests/test_demo_harness.py`.
+
+### Fixed
+- `app/logic.py`: mapped vertices are snapped to ~100 m and branches are emitted per vertex pair, so the national 220/132/400 kV graph is connected (E2 system study previously refused with disconnected components).
+- `app/logic.py`: multi-injection DC solve gained a scipy sparse direct path (0.6 s vs 43 s pure Python) with the CG fallback retained.
+- `engines/e3_criticality`: replaced the recursive bridge/articulation DFS (RecursionError on the national graph) with networkx plus an iterative Tarjan fallback; added analysis caps and honest total-vs-analysed counts.
+
+### Notes
+- GEP and Eskom upstreams are blocked from this environment; the demo degrades to NASA-cached resource evidence and skips the optional chronology.
