@@ -419,7 +419,30 @@ def _avg_demand_mw() -> tuple[float, dict[str, Any]]:
     }
 
 
+_CACHE: dict[tuple, dict[str, Any]] = {}
+
+
+def _stamp(path: Path) -> tuple[int, int]:
+    try:
+        st = path.stat()
+        return (st.st_mtime_ns, st.st_size)
+    except OSError:
+        return (0, 0)
+
+
 def loss_reconciliation(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Cached wrapper: the screen is deterministic for fixed input files."""
+    key = (_stamp(OSM_GRID_PATH), _stamp(AICD_GRID_PATH), _stamp(BASELINE_PATH), _stamp(BENCH_PATH))
+    hit = _CACHE.get(key)
+    if hit is not None:
+        return hit
+    out = _compute_loss_reconciliation(payload)
+    _CACHE.clear()
+    _CACHE[key] = out
+    return out
+
+
+def _compute_loss_reconciliation(payload: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run the benchmark transmission-loss screen and reconcile it against BPC/AFREC."""
     cases = ("conservative", "reference", "high_capacity")
     avg_mw, demand_provenance = _avg_demand_mw()

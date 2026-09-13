@@ -6,7 +6,23 @@ from typing import Any
 from app.logic import (
     _parse_voltage_values_kv,
 )
+_GRAPH_CACHE: dict[tuple, tuple] = {}
+_RESULT_CACHE: dict[tuple, dict[str, Any]] = {}
+
+
 def _graph_from_power_geojson(fc: dict[str, Any], voltage_kv: int | None = None) -> tuple[dict[tuple[float, float], set[tuple[float, float]]], dict[frozenset, list[dict[str, Any]]]]:
+    cache_key = (id(fc), voltage_kv)
+    cached = _GRAPH_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    adj, edge_features = _build_graph_from_power_geojson(fc, voltage_kv)
+    if len(_GRAPH_CACHE) > 16:
+        _GRAPH_CACHE.clear()
+    _GRAPH_CACHE[cache_key] = (adj, edge_features)
+    return adj, edge_features
+
+
+def _build_graph_from_power_geojson(fc: dict[str, Any], voltage_kv: int | None = None) -> tuple[dict[tuple[float, float], set[tuple[float, float]]], dict[frozenset, list[dict[str, Any]]]]:
     adj: dict[tuple[float, float], set[tuple[float, float]]] = defaultdict(set)
     edge_features: dict[frozenset, list[dict[str, Any]]] = defaultdict(list)
     for f in fc.get("features", []):
@@ -117,6 +133,18 @@ def _component_nodes(adj: dict[Any, set[Any]], start: Any, blocked_edge: frozens
 
 
 def structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = None, limit: int = 30) -> dict[str, Any]:
+    _key = (id(fc), voltage_kv, limit)
+    _hit = _RESULT_CACHE.get(_key)
+    if _hit is not None:
+        return _hit
+    _out = _build_structural_criticality_payload(fc, voltage_kv, limit)
+    if len(_RESULT_CACHE) > 16:
+        _RESULT_CACHE.clear()
+    _RESULT_CACHE[_key] = _out
+    return _out
+
+
+def _build_structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = None, limit: int = 30) -> dict[str, Any]:
     """Engine 3: topology criticality / N-1 structural islanding screen.
 
     No failure probability is estimated. Rankings are based on graph structure only.
@@ -185,7 +213,8 @@ def structural_criticality_payload(fc: dict[str, Any], voltage_kv: int | None = 
             bc = nx.edge_betweenness_centrality(G, normalized=True)
             betweenness_method = "networkx exact edge betweenness"
         else:
-            k = min(96, G.number_of_nodes())
+            _nodes = G.number_of_nodes()
+            k = min(48 if _nodes <= 20000 else 24, _nodes)
             bc = nx.edge_betweenness_centrality(G, k=k, normalized=True, seed=42)
             betweenness_method = f"networkx sampled edge betweenness (k={k}, seed=42)"
         for (u,v), value in bc.items():

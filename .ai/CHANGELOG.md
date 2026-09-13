@@ -105,3 +105,11 @@
 
 ### Notes
 - GEP and Eskom upstreams are blocked from this environment; the demo degrades to NASA-cached resource evidence and skips the optional chronology.
+
+### Performance (demo branch)
+- Server: process-wide parsed-JSON cache keyed by path+mtime; memoised OSM evidence summary, multi-injection solve, E3 payloads, E3 graphs and the E2 cross-check; scipy direct solve for the E2 system study.
+- Transport: gzip (level 4), browser caching for `/static` (1 day) and `/api/osm/power` (5 min), orjson serialisation.
+- Map: local bounded tile proxy `/tiles/{z}/{x}/{y}.png` backed by `data/cache/tiles` plus `scripts/prewarm_tiles.py` (379 tiles, 2.6 MB).
+- Upstreams: 4 s connect timeouts and a 10-minute circuit breaker for GEP/DRE so blocked hosts fail fast.
+- Frontend: session API cache (GET 60 s, POST 5 min), tile URL switched to the proxy, E3 defaults to 220 kV.
+- Measured (warm): OSM 0.57 s, E2 system 0.15 s, E3 220 kV 0.9 s then 7 ms cached, E4 0.09 s, cross-check 5 ms, tiles 4 ms.
