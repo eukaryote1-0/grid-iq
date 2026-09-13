@@ -14,6 +14,11 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse, ORJSONResponse
+try:  # optional fast serialiser
+    import orjson as _orjson  # noqa: F401
+    _DEFAULT_RESPONSE = ORJSONResponse
+except Exception:  # pragma: no cover
+    _DEFAULT_RESPONSE = JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -91,7 +96,7 @@ def _upstream_guard(name: str, label: str) -> None:
     if _upstream_blocked(name):
         raise HTTPException(status_code=503, detail=f"{label} is marked unavailable after a recent failure; try again shortly.")
 
-app = FastAPI(title="GridIQ Botswana", version="1.7.0", default_response_class=ORJSONResponse)
+app = FastAPI(title="GridIQ Botswana", version="1.7.0", default_response_class=_DEFAULT_RESPONSE)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^http://(localhost|127\.0\.0\.1)(:\d+)?$",
