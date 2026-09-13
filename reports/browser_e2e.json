@@ -1,7 +1,7 @@
 {
   "pass": true,
   "version": "1.7.0",
-  "at": "2026-09-13T08:33:03.885426+00:00",
+  "at": "2026-09-13T09:22:54.089351+00:00",
   "pages": [
     "overview",
     "network",
@@ -22,6 +22,11 @@
     "05-villagefit.png",
     "05b-villagefit.png",
     "06-data.png",
-    "07-audit.png"
+    "07-audit.png",
+    "fix-demand.png",
+    "fix-generation.png",
+    "fix-optimizer.png",
+    "fix-overview.png",
+    "fix-storage.png"
   ]
 }

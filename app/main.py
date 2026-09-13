@@ -67,6 +67,7 @@ from .logic import (
     plant_reference_payload,
     scenario_payload,
     storage_benchmarks_payload,
+    settlements_payload,
 )
 from .engines_router import router as engines_router
 from .tiles import router as tiles_router
@@ -96,7 +97,7 @@ def _upstream_guard(name: str, label: str) -> None:
     if _upstream_blocked(name):
         raise HTTPException(status_code=503, detail=f"{label} is marked unavailable after a recent failure; try again shortly.")
 
-app = FastAPI(title="GridIQ Botswana", version="1.7.0", default_response_class=_DEFAULT_RESPONSE)
+app = FastAPI(title="Eukaryote 1.0", version="1.7.0", default_response_class=_DEFAULT_RESPONSE)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^http://(localhost|127\.0\.0\.1)(:\d+)?$",
@@ -179,6 +180,24 @@ def census_districts():
 @app.get("/api/demand/district-context")
 def district_access_context():
     return district_access_context_payload()
+
+
+@app.get("/api/villages")
+def villages(query: str = Query(""), limit: int = Query(400, ge=1, le=3000)):
+    """Botswana settlement register for the VillageFit dropdown (World Bank DRE Atlas)."""
+    payload = settlements_payload()
+    rows = payload.get("villages", [])
+    q = query.strip().lower()
+    if q:
+        matched = [r for r in rows if q in str(r.get("name", "")).lower() or q in str(r.get("district", "")).lower()]
+    else:
+        matched = rows
+    return {
+        "villages": matched[:limit],
+        "count": len(matched),
+        "total": len(rows),
+        "meta": payload.get("metadata", {}),
+    }
 
 
 @app.get("/api/supply/metrics")

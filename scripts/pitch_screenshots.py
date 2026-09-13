@@ -62,7 +62,7 @@ def main() -> int:
             # ---- Village Engine FIRST (urgent) --------------------------------
             page.click('.navbtn[data-page="villagefit"]')
             page.wait_for_timeout(500)
-            page.uncheck("#e4gep")
+            page.select_option("#e4village", index=0)
             page.fill("#e4annual", "800"); page.fill("#e4peak", "0.25"); page.fill("#e4evening", "65")
             page.click("#runE4")
             page.get_by_text("Right-sizing", exact=False).first.wait_for()

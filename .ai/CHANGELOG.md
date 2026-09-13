@@ -118,3 +118,11 @@
 - Replaced the flat top nav with a grouped sidebar (PLAN / MONITOR / TRUST), inline SVG icons, active accent, collapse persisted, mobile off-canvas drawer, and a demo-flow checklist with step numbers.
 - Added a one-line page intent under each page title and Option A/B preset chips on the Optimizer.
 - Fixed data-key mismatches that showed zeros/blanks: BPC grid km/substations, Q1 2026 Eskom share, SAPP peak demand, generation mix shares, storage benchmark CAPEX, NEUS connected households and district populations.
+
+### Data + UI (demo branch, v1.9)
+- Village register: `data/official/botswana_settlements.json` (2,647 World Bank DRE Atlas settlement clusters, CC-BY-4.0, six verified pilots flagged) built by `scripts/build_settlements.py`; `GET /api/villages` serves it.
+- VillageFit village picker is a native click-to-browse `<select>` grouped `Verified off-grid pilots` first, then all settlements, with a selected-village hint; Run VillageFit zooms the map to the village.
+- Branding: sidebar logo replaced with `web/brand/logo.png` (also the favicon); app display name is **Eukaryote 1.0** (UI, page title, API title).
+- Removed the global evidence banner and per-page evidence strips; hidden the VillageFit NASA/GEP checkboxes (defaults: NASA cached, GEP off).
+- Generation page now shows 2024 annual generation/imports/coverage and BPC 2024 losses (793 GWh / 16.62%).
+- Fixed display key mismatches (BPC grid km, Eskom share, peak demand, generation mix, storage CAPEX, NEUS households, district populations).

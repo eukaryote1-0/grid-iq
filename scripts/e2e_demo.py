@@ -112,7 +112,7 @@ def run() -> int:
 
             # 5. VillageFit (offline: NASA cache on, GEP off to avoid the blocked upstream)
             go("villagefit")
-            page.uncheck("#e4gep")
+            page.select_option("#e4village", index=0)
             page.fill("#e4annual", "800")
             page.fill("#e4peak", "0.25")
             page.fill("#e4evening", "65")

@@ -44,3 +44,24 @@
   .shell.sidebar-open .sidebar{transform:none}
   .side-mobile-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin-right:10px;border:1px solid var(--line);background:#101d29;color:#d7e4ee;border-radius:9px;font-size:16px}
 }
+
+/* ---- brand logo + village combobox (v1.9) ---- */
+.logo-img{width:35px;height:35px;border-radius:10px;display:block;box-shadow:0 0 18px rgba(66,214,231,.25)}
+.shell.sidebar-collapsed .logo-img{width:30px;height:30px}
+.combo{position:relative}
+.combo-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);background:#0f1b27;color:#dbe8f2;border-radius:9px;padding:9px 11px;cursor:pointer;text-align:left;font-size:12px}
+.combo-toggle:hover{border-color:#3a5268}
+.combo-toggle .caret{color:var(--muted)}
+.combo-menu{position:absolute;z-index:1200;left:0;right:0;margin-top:6px;background:#0d1a26;border:1px solid var(--line);border-radius:11px;box-shadow:0 18px 45px rgba(0,0,0,.45);padding:8px}
+.combo-menu[hidden]{display:none}
+.combo-filter{width:100%;border:1px solid var(--line);background:#0b1621;color:var(--text);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.combo-list{max-height:300px;overflow:auto}
+.combo-group{font-size:9px;letter-spacing:.14em;color:#688197;padding:8px 8px 4px}
+.combo-opt{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 9px;border-radius:8px;cursor:pointer;font-size:12px;color:#c7d5e2}
+.combo-opt:hover,.combo-opt.active{background:#132331;color:#fff}
+.combo-opt .pop{color:var(--muted);font-variant-numeric:tabular-nums}
+.combo-opt .pilot{color:var(--green);font-size:10px}
+.combo-empty{padding:10px;color:var(--muted);font-size:11px}
+.combo{grid-column:1/-1}
+.combo-hint{grid-column:1/-1;display:block;margin-top:2px}
+.field-grid select{width:100%;border:1px solid var(--line);background:#0f1b27;color:#dbe8f2;border-radius:9px;padding:9px 11px;font-size:12px}

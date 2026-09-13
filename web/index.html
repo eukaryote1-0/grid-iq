@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GridIQ Botswana</title>
+<title>Eukaryote 1.0 &#183; Botswana System Planning</title>
+<link rel="icon" type="image/png" href="/static/brand/logo.png">
 <link rel="preconnect" href="https://tile.openstreetmap.org">
 <link rel="stylesheet" href="/static/css/app.css"/>
 </head>
@@ -11,15 +12,15 @@
 <div class="shell" id="shell">
 <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
   <div class="side-brand">
-    <div class="logo">&#9889;</div>
-    <div class="side-brand-text"><b>GRID<span>IQ</span></b><small>BOTSWANA &#183; SYSTEM PLANNING</small></div>
+    <img class="logo-img" src="/static/brand/logo.png" alt="Eukaryote 1.0">
+    <div class="side-brand-text"><b>EUKARYOTE <span>1.0</span></b><small>BOTSWANA &#183; SYSTEM PLANNING</small></div>
     <button class="side-collapse" id="sidebarToggle" title="Collapse sidebar" aria-label="Collapse sidebar">&#8249;</button>
   </div>
   <nav id="nav" class="side-nav"></nav>
   <div class="side-foot">
     <div class="side-pills"><span id="healthPill" class="pill neutral">API &#8230;</span><span id="vendorPill" class="pill neutral">Visual libs &#8230;</span></div>
     <button id="dataBtn" class="btn subtle side-data">Data evidence</button>
-    <div class="avatar">GI</div>
+    <div class="avatar">E1</div>
   </div>
 </aside>
 <div class="main">
@@ -28,9 +29,8 @@
     <div><small>NATIONAL ENERGY DIGITAL TWIN</small><h1 id="pageTitle">System Overview</h1><p class="page-intent" id="pageIntent"></p></div>
     <div class="sub-actions"><span class="updated" id="updatedAt">&#8212;</span><button class="btn primary" data-go="optimizer">Run scenario</button></div>
   </div>
-  <div class="evidence-banner"><strong>Evidence boundary:</strong> Official Botswana statistics are bundled as source snapshots; OSM provides mapped public infrastructure; NASA POWER is live planning-grade weather; benchmark values are labelled and benchmark power-flow results are separated from observed BPC state. Unknown BPC electrical values remain unknown.</div>
   <main id="workspace"></main>
-  <footer><span>&#169; GridIQ Botswana prototype</span><span>OpenStreetMap &#169; contributors &#183; Open data attribution shown in-app</span></footer>
+  <footer><span>&#169; Eukaryote 1.0 prototype</span><span>OpenStreetMap &#169; contributors &#183; Open data attribution shown in-app</span></footer>
 </div>
 </div>
 <aside id="drawer" class="drawer" aria-hidden="true"><div class="drawer-head"><div><small id="drawerKicker">DETAIL</small><h2 id="drawerTitle">Selection</h2></div><button id="drawerClose" class="iconbtn">&#215;</button></div><div id="drawerBody"></div></aside>
@@ -48,6 +48,6 @@ window.__GRID_BOOT_TIMER=setTimeout(function(){
 window.addEventListener('error',function(e){window.__GRID_LAST_ERROR=e.message||'JavaScript error';});
 window.addEventListener('unhandledrejection',function(e){window.__GRID_LAST_ERROR=String(e.reason||'Unhandled promise rejection');});
 </script>
-<script defer src="/static/js/app.bundle.js?v=1.8.0"></script>
+<script defer src="/static/js/app.bundle.js?v=1.9.0"></script>
 </body>
 </html>

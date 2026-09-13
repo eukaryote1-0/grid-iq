@@ -73,6 +73,10 @@ def district_access_context_payload() -> dict[str, Any]:
     return _load_json(DATA / "derived" / "district_access_pressure_2022_23.json")
 
 
+def settlements_payload() -> dict[str, Any]:
+    return _load_json(DATA / "official" / "botswana_settlements.json")
+
+
 def cache_read(name: str, max_age: int) -> Any | None:
     p = CACHE / name
     if p.exists() and time.time() - p.stat().st_mtime < max_age:
