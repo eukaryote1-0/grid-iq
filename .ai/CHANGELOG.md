@@ -88,3 +88,6 @@
 
 ### Refactor
 - `app/engines.py` split into the `engines/` package (payloads, E1, E2, E3, E4, supply) per `AGENTS.md`; `app/main.py`/`app/compat_server.py` rewired; the independent E2 transmission-loss cross-check kept at `/api/engines/loss-reconciliation`.
+
+### Docs
+- Solutions Report: added three user journeys (planner, community, custodian) modelled on BEAM's flow sections; split the technology stack into implemented-today vs target architecture; surfaced the 2024 BPC loss figure (793 GWh / 16.62%) now that it is sourced.
