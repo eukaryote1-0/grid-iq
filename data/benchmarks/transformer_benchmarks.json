@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "title": "PyPSA / pandapower standard transformer benchmark types",
+    "evidence_class": "external_engineering_benchmark",
+    "synthetic": false,
+    "source_repository": "PyPSA/PyPSA",
+    "source_path": "pypsa/data/standard_types/transformer_types.csv",
+    "source_url": "https://github.com/PyPSA/PyPSA/blob/master/pypsa/data/standard_types/transformer_types.csv",
+    "warning": "These standard types are engineering proxies only. They are not BPC transformer ratings, impedances, taps or condition data. Botswana 132 kV layers are not silently relabelled as 110 kV; any 110 kV proxy use is explicit."
+  },
+  "types": {
+    "100_mva_220_110": {
+      "name": "100 MVA 220/110 kV",
+      "frequency_hz": 50.0,
+      "s_nom_mva": 100.0,
+      "hv_kv": 220.0,
+      "lv_kv": 110.0,
+      "short_circuit_voltage_pct": 12.0,
+      "short_circuit_resistance_pct": 0.26,
+      "iron_loss_kw": 55.0,
+      "no_load_current_pct": 0.06,
+      "tap_min": -9,
+      "tap_max": 9,
+      "tap_step_pct": 1.5
+    },
+    "160_mva_380_110": {
+      "name": "160 MVA 380/110 kV",
+      "frequency_hz": 50.0,
+      "s_nom_mva": 160.0,
+      "hv_kv": 380.0,
+      "lv_kv": 110.0,
+      "short_circuit_voltage_pct": 12.2,
+      "short_circuit_resistance_pct": 0.25,
+      "iron_loss_kw": 60.0,
+      "no_load_current_pct": 0.06,
+      "tap_min": -9,
+      "tap_max": 9,
+      "tap_step_pct": 1.5
+    }
+  },
+  "botswana_proxy_mappings": [
+    {
+      "mapped_voltage_pair_kv": [220, 132],
+      "proxy_type": "100_mva_220_110",
+      "status": "voltage_proxy",
+      "warning": "110 kV standard low side is used only as an impedance/rating sensitivity proxy for a mapped 132 kV transition."
+    },
+    {
+      "mapped_voltage_pair_kv": [400, 132],
+      "proxy_type": "160_mva_380_110",
+      "status": "voltage_proxy",
+      "warning": "380/110 kV standard type is used only as a sensitivity proxy for a mapped 400/132 kV transition."
+    }
+  ]
+}

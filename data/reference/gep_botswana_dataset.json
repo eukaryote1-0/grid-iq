@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "title": "Botswana Global Electrification Platform dataset metadata",
+    "synthetic": false,
+    "evidence_class": "open_modelled_dataset_reference",
+    "publisher": "World Bank / ESMAP",
+    "license": "CC BY 4.0",
+    "last_updated": "2025-06-12",
+    "source_url": "https://energydata.info/dataset/botswana-global-electrification-platform-gep",
+    "warning": "GEP outputs and modeling parameters are modelled electrification-planning data, not BPC measurements. GridIQ may use them as an external planning benchmark, never as observed load or observed grid state."
+  },
+  "resources": {
+    "climate_energy_modeling_parameters": {
+      "resource_id": "3d6620fa-f9b7-46b3-b886-18b4072c38a8",
+      "records": 48613,
+      "fields_used_if_queried": ["Admin1","GHI","WindCF","CurrentHVLineDist","CurrentMVLineDist","Pop2025","AgriDemand","CommercialDemand","EducationDemand","HealthDemand","GridPenalty"]
+    },
+    "v2_solar_resource": {"resource_id":"48523879-63e9-4c48-85e7-d5d81b17fa08","description":"Hourly Solar GHI"},
+    "v2_wind_resource": {"resource_id":"5d77b306-452e-41f8-8994-5b62833783e1","description":"Hourly Wind Velocity"},
+    "settlement_clusters": {"resource_id":"9493f419-800e-4523-a8a5-8a7e0e7dee14","description":"Settlement-cluster shapefile; download may require portal login"}
+  }
+}

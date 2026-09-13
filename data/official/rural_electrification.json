@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "title": "Botswana rural electrification and verified mini-grid pilot set",
+    "synthetic": false,
+    "evidence_class": "official_and_external_public",
+    "sources": [
+      {
+        "publisher": "Ministry of Minerals and Energy",
+        "title": "Committee of Supply Speech - March 2025",
+        "url": "https://www.gov.bw/sites/default/files/2025-03/Committee%20of%20Supply%20%20-%20March%202025.pdf",
+        "facts": "463 of 565 villages electrified; six remote villages selected for an off-grid pilot."
+      },
+      {
+        "publisher": "Botswana Power Corporation",
+        "title": "Botswana Power Corporation Electricity Generation Update",
+        "url": "https://www.bpc.bw/portfolio-items/botswana-power-corporation-electricity-generation-update/",
+        "facts": "83% of gazetted villages have access; six villages identified for off-grid electrification."
+      },
+      {
+        "publisher": "Public project information filing",
+        "title": "Botswana Off Grid Project - Small Scale Mini-Grid Solar PV Plants",
+        "url": "https://efile.fara.gov/docs/7686-Informational-Materials-20260115-6.pdf",
+        "facts": "Names six pilot villages and describes four mini-grid plants."
+      },
+      {
+        "publisher": "Statistics Botswana",
+        "title": "Population and Housing Census 2022",
+        "url": "https://www.statsbots.org.bw/census-population-2022",
+        "facts": "Village population counts used below."
+      }
+    ],
+    "coordinate_note": "Village coordinates are public gazetteer/OSM coordinates used only for spatial screening. They are not BPC connection points.",
+    "coverage_note": "The public sources identify the six pilot villages, but do not provide a verified current public list of every village that remains unconnected. GridIQ therefore ships a verified pilot cohort, not a fabricated 102-village list."
+  },
+  "programme_status": {
+    "gazetted_villages_total_2025": 565,
+    "electrified_villages_march_2025": 463,
+    "electrified_pct_march_2025": 82.0,
+    "bpc_gazetted_village_access_pct_2026": 83.0,
+    "pilot_villages_count": 6,
+    "pilot_plants_count": 4
+  },
+  "pilot_villages": [
+    {"id":"ukhwi","name":"Ukhwi","aliases":["Ukwi"],"population_2022":669,"lat":-23.55587,"lon":20.49873,"district_context":"Kgalagadi / Hukuntsi","pilot_group":"independent plant","source_status":"verified pilot"},
+    {"id":"zutshwa","name":"Zutshwa","aliases":["Zutswa"],"population_2022":613,"lat":-24.13333,"lon":21.25,"district_context":"Kgalagadi / Hukuntsi","pilot_group":"independent plant","source_status":"verified pilot"},
+    {"id":"qangwa","name":"Qangwa","aliases":["Qwangwa"],"population_2022":1018,"lat":-19.52935,"lon":21.17549,"district_context":"Ngamiland","pilot_group":"shared plant with Xaxa","source_status":"verified pilot"},
+    {"id":"xaxa","name":"Xaxa","aliases":["Xai Xai","Xaxaba"],"population_2022":620,"lat":-19.8819,"lon":21.0809,"district_context":"Ngamiland West","pilot_group":"shared plant with Qangwa","source_status":"verified pilot"},
+    {"id":"bere","name":"Bere","aliases":[],"population_2022":874,"lat":-22.82011,"lon":21.87555,"district_context":"Ghanzi","pilot_group":"shared plant with Kacgae","source_status":"verified pilot"},
+    {"id":"kacgae","name":"Kacgae","aliases":["Kagcae"],"population_2022":746,"lat":-22.85596,"lon":22.20583,"district_context":"Ghanzi","pilot_group":"shared plant with Bere","source_status":"verified pilot"}
+  ],
+  "known_data_conflicts": [
+    {
+      "field": "distance_to_grid",
+      "issue": "A public off-grid project document states each pilot village is over 100 km from existing grid infrastructure, while a March 2025 parliamentary report says Ukhwi is 63 km from the actual connection point at Ncojane.",
+      "handling": "GridIQ does not hard-code a single distance. It computes distance to mapped OSM power infrastructure when available and shows both public statements as context."
+    }
+  ]
+}

@@ -38,3 +38,8 @@ Resolved with localStorage persistence, retained OSM application state and Leafl
 
 ## ISSUE-R04 — v1.4 compatibility server missing derived-demand import
 Found during runtime smoke testing and fixed; both FastAPI and stdlib runtimes now serve `/api/demand/district-context`.
+
+## ISSUE-006 — Benchmark planning model is not operational BPC validation
+Status: Open / intentional boundary
+
+All unavailable public planning fields now have a documented benchmark/proxy/UNKNOWN resolution path. The remaining unresolved variable is authoritative BPC operating truth itself. No external benchmark can validate actual switching state, line ratings, transformer parameters, time-aligned loads, failures or condition history.

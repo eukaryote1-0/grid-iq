@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "title": "SAPP published BPC-ESKOM transfer limits",
+    "synthetic": false,
+    "evidence_class": "regional_operator_public",
+    "publisher": "Southern African Power Pool",
+    "source_url": "https://www.sapp.co.zw/transfer-limits",
+    "warning": "Rows are published transfer-limit entries. Do not sum them into one Botswana import capacity without confirming that paths are simultaneously available and non-overlapping."
+  },
+  "bpc_eskom": [
+    {"interconnection":"Spitskop-Gaborone South","voltage_kv":132,"number_of_lines":3,"thermal_limit_mw":300,"voltage_limit_mw":270,"stability_transfer_mw":245,"applicable_transfer_limit_mw":245},
+    {"interconnection":"Derderport-Dwaalboom","voltage_kv":132,"number_of_lines":1,"thermal_limit_mw":115,"voltage_limit_mw":75,"stability_transfer_mw":70,"applicable_transfer_limit_mw":70},
+    {"interconnection":"Gaborone-Spitskop","voltage_kv":132,"number_of_lines":3,"thermal_limit_mw":115,"voltage_limit_mw":120,"stability_transfer_mw":110,"applicable_transfer_limit_mw":110},
+    {"interconnection":"Phokoje-Matimba","voltage_kv":400,"number_of_lines":1,"thermal_limit_mw":650,"voltage_limit_mw":200,"stability_transfer_mw":190,"applicable_transfer_limit_mw":190}
+  ]
+}

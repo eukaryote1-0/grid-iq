@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "title": "Renewable generation and planning benchmarks",
+    "evidence_class": "external_benchmark",
+    "synthetic": false,
+    "warning": "Technology costs and capacity factors are benchmarks, not Botswana project quotes or measured plant performance."
+  },
+  "ireNA_2024_global": {
+    "source": "IRENA Renewable Power Generation Costs in 2024",
+    "source_url": "https://www.irena.org/Publications/2025/Jul/Renewable-Power-Generation-Costs-in-2024",
+    "solar_pv": {"installed_cost_usd_per_kw": 691, "lcoe_usd_per_kwh": 0.043, "global_average_capacity_factor_pct": 17.4, "lifetime_years_screening": 25},
+    "onshore_wind": {"installed_cost_usd_per_kw": 1041, "lcoe_usd_per_kwh": 0.034, "global_average_capacity_factor_pct": 34.0, "lifetime_years_screening": 25},
+    "battery_storage": {"installed_cost_usd_per_kwh": 192, "lifetime_years_screening": 15}
+  },
+  "botswana_resource_screening": {
+    "solar_pvout_kwh_per_kwp_year": 1882.45,
+    "solar_pvout_evidence_class": "published_analysis_based_on_global_solar_atlas",
+    "solar_pvout_note": "Country-average screening value reported in published analysis using Global Solar Atlas. Site-specific decisions should use Global Solar Atlas raster/NASA POWER, not this national average.",
+    "solar_atlas_source_url": "https://globalsolaratlas.info/",
+    "wind_area_share_pct_by_speed_ms": {"4_to_6": 5.54, "6_to_7": 47.03, "7_to_8": 41.28, "8_plus": 6.15},
+    "wind_evidence_class": "regional_sapp_study_screening",
+    "wind_note": "Wind speed distribution supports resource screening only. GridIQ uses IRENA's global average capacity factor only when benchmark wind mode is explicitly enabled."
+  },
+  "finance_screening": {
+    "real_discount_rate_pct": 8.0,
+    "evidence_class": "model_assumption",
+    "note": "User-adjustable screening assumption used only to annualize benchmark capital costs. It is not a Botswana regulated WACC."
+  }
+}

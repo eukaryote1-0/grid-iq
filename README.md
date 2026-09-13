@@ -1,56 +1,49 @@
-# GridIQ Botswana — Evidence-Driven Planning UI v1.4
+# GridIQ Botswana — Evidence-Driven Planning UI v1.7
 
 > **Repository:** `eukaryote1-0/grid-iq` (private) · **Team:** Eukaryote1.0
 > **Before contributing:** `CONTRIBUTING.md`, `AGENTS.md`, `.ai/START_HERE.md`
 > Land changes via PR with green CI (branch protection needs a paid plan for private repos).
-> Large datasets are fetched with `make data`.
+> Large datasets are fetched with `make data`; committed checksums are checked with `make verify`.
 
-GridIQ is a national energy-planning prototype that treats **generation + storage + grid + demand** as one planning problem while keeping observed Botswana evidence, deterministic derivations, external engineering benchmarks, model outputs and unknowns visibly separate.
+GridIQ treats **generation + storage + grid + demand** as one planning problem. v1.7 closes public-data gaps with named benchmark datasets or deterministic proxies where technically defensible, while keeping BPC operational truth separate.
 
-## v1.4 highlights
+## Evidence rule
 
-- Professional responsive browser UI with persistent navigation/scenario/selection state.
-- OpenStreetMap basemap + live Overpass power lines, substations, plants and generators.
-- Geometry-derived topology: line length, nodes, segments, connected components, endpoints and junctions.
-- **Engineering Benchmark Mode:** supported OSM 132/220/400 kV line geometry can be enriched with documented PyPSA/PyPSA-Earth standard electrical parameters in conservative/reference/high-capacity cases.
-- Dependency-free **single-voltage DC transfer sensitivity** using a user-defined MW transfer; no fake Botswana hourly bus load is created.
-- Approximate I²R loss post-processing clearly separated from the lossless DC solve.
-- Live NASA POWER selected-site weather/resource query.
-- Live WorldPop v2 selected-area population query; population remains a demand driver, not MW.
-- Official/transformed Botswana evidence: Statistics Botswana Q1 2026 electricity brief, SAPP capacity/peak snapshot, National Energy Compact, 2022 Census district population and NEUS 2022/23 household energy/access tables.
-- Deterministic Census×NEUS population-weighted access-gap indicator, explicitly **not** a count of unconnected people/households and not electrical demand.
-- IRENA/NREL BESS benchmark layer.
-- Historical WRI Botswana power-plant rows as a labelled geolocation reference only.
-- SHA-256 evidence manifest for bundled evidence/reference/benchmark/derived files.
-- Audit ratings computed from explicit pass/fail evidence gates rather than typed into the frontend.
+**Observed Botswana data → deterministic derived data → named external benchmark/modelled data → UNKNOWN if no defensible substitute exists.**
 
-## Critical evidence boundary
+A benchmark may close a planning capability. It does **not** become measured BPC data.
 
-The benchmark network is a **planning sensitivity model**. It is not the current BPC operating model.
+## v1.7 implemented scope
 
-GridIQ does not have authoritative BPC:
-
-- bus/branch reconciliation;
-- conductor/circuit records and line ratings;
-- R/X or transformer parameters;
-- switching state;
-- time-aligned feeder/substation loads and injections;
-- AC power-flow validation or N-1 results.
-
-Accordingly, benchmark transfer utilization must never be described as measured BPC loading or real-time congestion.
+- Real OSM/Overpass power geometry and topology.
+- PyPSA/Pandapower benchmark R/X/current envelopes for mapped 132/220/400 kV lines.
+- Single-transfer and **multi-injection benchmark DC power-flow** with branch utilisation and approximate I²R loss post-processing.
+- BPC 642 GWh / 14.51% FY2023 loss anchor + loss-reconciliation harness.
+- E1 annual least-cost capacity-expansion screening with SciPy/HiGHS.
+- E1 24-hour benchmark chronology using a normalized Eskom hourly demand benchmark + NASA POWER solar shape, calibrated to published Botswana anchors.
+- E3 bridges, articulation points, deterministic N-1 geometry islanding and edge-betweenness watch-list.
+- E4 VillageFit with verified pilot villages, World Bank DRE settlement search, GEP/NASA resource context, grid-extension benchmark cost and evidence-gated biogas pathway.
+- DRE-derived candidate register for broader settlement screening when a verified current BPC unconnected-village register is unavailable. This is **not** relabelled as connection status.
+- WorldPop, Census, NEUS, SAPP, Botswana electricity statistics, agricultural context and renewable/BESS benchmarks.
+- Non-authoritative open Botswana boundary GeoJSON connector used only as a benchmark geometry substitute until the official Statistics Botswana polygon is supplied.
+- `data/benchmarks/gap_resolution.json` documents each unavailable field, the benchmark used, what it enables, and what it still cannot claim.
+- Persistent application state across navigation and explicit provenance/audit pages.
 
 ## Current evidence-gated audit
 
-The application calculates its audit through `/api/audit`. At release build time the current gate result is:
+Calculated by `/api/audit` from named requirements and release gates:
 
-- UI/application layer: **7.3/10** — browser E2E for this exact release, vendored visual libraries and formal accessibility audit remain outstanding.
+- UI/application: **6.8/10** — the exact release lacks browser E2E certification, locally vendored Leaflet/Chart.js, and a formal WCAG/screen-reader audit.
+- Problem evidence: **10.0/10** at the documented open-data/problem-validation scope.
+- Engine implementation: **10.0/10** at the explicitly stated **planning / benchmark / screening scopes**.
+- Data coverage: **10.0/10** at the public-data + benchmark-substitution scope.
 - Open-data governance: **10.0/10**.
-- Benchmark engineering capability: **10.0/10** for its stated benchmark-sensitivity scope.
-- Public-data planning product: **9.2/10**.
-- BPC operational validation: **0.0/10** because the required utility engineering/load evidence has not been supplied.
-- Whole solution including operational validation: **7.3/10**.
+- Benchmark engineering capability: **10.0/10** for planning sensitivities.
+- Public-data planning product: **9.5/10**.
+- **BPC operational validation: 0.0/10** — benchmarks cannot validate real BPC ratings, switching state, transformer parameters or time-aligned operating loads.
+- Whole solution including BPC operational validation: **8.0/10**.
 
-These are not claims of operational BPC accuracy. See the Audit page and `.ai/CURRENT_STATE.md`.
+The 9.5 planning score is not a claim of SCADA/EMS-grade accuracy.
 
 ## Run on Ubuntu
 
@@ -59,11 +52,7 @@ chmod +x run.sh stop.sh doctor.sh
 ./run.sh
 ```
 
-Open:
-
-```text
-http://127.0.0.1:8000
-```
+Open `http://127.0.0.1:8000`.
 
 Alternative port:
 
@@ -79,8 +68,6 @@ Stop / diagnostics:
 cat gridiq.log
 ```
 
-The launcher prefers FastAPI. If dependencies cannot be installed, it falls back to a dependency-free stdlib server that preserves the core local API/UI contract.
-
 ## Validation
 
 ```bash
@@ -89,24 +76,10 @@ python -m py_compile app/*.py tests/*.py
 node --check web/js/app.bundle.js
 ```
 
-Current-release browser fixture (requires working Chromium/Chrome):
-
-```bash
-BASE_URL=http://127.0.0.1:8000 ./scripts/browser_smoke.sh
-```
-
-The build sandbox could not complete Chromium execution, so the current-release browser-regression audit gate is deliberately **false** until the exact v1.4 release is tested on a working browser environment.
+The build environment cannot certify the current browser E2E gate; `scripts/browser_smoke.sh` is included for a workstation with a working Chromium/Chrome.
 
 ## Internet-dependent features
 
-Internet is required for live:
+Live OSM/Overpass, NASA POWER, WorldPop, World Bank GEP/DRE, the benchmark boundary connector, and current Leaflet/Chart.js CDN assets require internet. If an upstream source is unavailable, GridIQ reports a degraded state rather than substituting fabricated data.
 
-- OSM raster tiles;
-- Overpass power geometry;
-- NASA POWER;
-- WorldPop;
-- Leaflet and Chart.js CDN assets.
-
-The bundled evidence, provenance, audit and local screens do not become synthetic substitutes when an upstream service is unavailable.
-
-See `docs/DATA_PROVENANCE.md`, `data/source_manifest.csv`, `data/evidence_manifest.json` and `.ai/START_HERE.md`.
+See `docs/DATA_PROVENANCE.md`, `data/source_manifest.csv`, `data/evidence_manifest.json`, `data/benchmarks/gap_resolution.json`, and `.ai/START_HERE.md`.

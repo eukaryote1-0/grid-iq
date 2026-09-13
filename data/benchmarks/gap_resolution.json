@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "title": "GridIQ benchmark gap-resolution register",
+    "version": "1.7.0",
+    "synthetic": false,
+    "rule": "Unavailable Botswana operational measurements may be addressed for planning with published benchmark datasets, but the resulting values remain benchmark/modelled and never become BPC-observed truth."
+  },
+  "gaps": [
+    {
+      "missing": "BPC line resistance/reactance and thermal ratings",
+      "benchmark": "PyPSA/Pandapower standard line types",
+      "source": "https://github.com/PyPSA/PyPSA/blob/master/pypsa/data/standard_types/line_types.csv",
+      "application": "OSM mapped 132/220/400 kV line geometry is enriched with conservative/reference/high-capacity R/X/current envelopes.",
+      "status": "addressed_for_planning_not_operational_validation"
+    },
+    {
+      "missing": "BPC transformer ratings/impedances/taps",
+      "benchmark": "PyPSA/Pandapower standard transformer types",
+      "source": "https://github.com/PyPSA/PyPSA/blob/master/pypsa/data/standard_types/transformer_types.csv",
+      "application": "Voltage-transition sensitivity only; no benchmark type is relabelled as a BPC transformer.",
+      "status": "addressed_for_planning_not_operational_validation"
+    },
+    {
+      "missing": "Botswana hourly system load shape",
+      "benchmark": "Eskom metering-based hourly RSA contracted demand; PyPSA-Earth GEGIS/DemandCast methodology as fallback reference",
+      "sources": [
+        "https://www.eskom.co.za/dataportal/demand-side/system-hourly-demand-and-available-capacity/",
+        "https://pypsa-earth.readthedocs.io/en/latest/tutorials/use-cases/3-demand-data/"
+      ],
+      "application": "Only the normalized hourly shape is used, then scaled to published Botswana peak/annual-energy anchors. South African MW magnitudes are discarded.",
+      "status": "addressed_for_benchmark_chronology"
+    },
+    {
+      "missing": "Botswana hourly PV plant production",
+      "benchmark": "NASA POWER hourly irradiance + Botswana PVOUT annual screening benchmark",
+      "source": "https://power.larc.nasa.gov/",
+      "application": "Temporal solar shape is derived from irradiance and calibrated to annual PVOUT; not measured plant output.",
+      "status": "addressed_for_resource_chronology"
+    },
+    {
+      "missing": "Botswana utility-scale battery performance/cost",
+      "benchmark": "NREL/NLR 2025 ATB + IRENA battery cost benchmark",
+      "source": "https://atb.nlr.gov/electricity/2025/utility-scale_battery_storage",
+      "application": "Duration, round-trip efficiency and cost screening; not a procurement quote.",
+      "status": "addressed_for_planning"
+    },
+    {
+      "missing": "Authoritative current sub-district polygon file in the bundled release",
+      "benchmark": "Open Botswana administrative GeoJSON from Location Grid Project",
+      "source": "https://storage.googleapis.com/location-grid-gis-layers/bwa_admin1.geojson",
+      "application": "Spatial display/join substitute only. The UI must say non-authoritative benchmark geometry.",
+      "status": "addressed_with_non_authoritative_geometry_substitute"
+    },
+    {
+      "missing": "Verified current connection status for every gazetted village",
+      "benchmark": "World Bank Botswana DRE settlement clusters + GEP electrification-planning indicators",
+      "sources": [
+        "https://energydata.info/dataset/botswana-distributed-renewable-energy-dre",
+        "https://energydata.info/dataset/botswana-global-electrification-platform-gep"
+      ],
+      "application": "Creates a settlement screening/candidate register. It cannot convert a modelled settlement into a verified BPC unconnected-village record.",
+      "status": "addressed_for_candidate_screening_not_status_verification"
+    },
+    {
+      "missing": "Village-level biomass/biogas feedstock",
+      "benchmark": "Official Botswana district cattle context + FAO cattle-dung biogas yield ranges",
+      "application": "District evidence is shown as context; biogas volume is calculated only when explicit collectable manure mass is supplied. No district cattle are silently apportioned to villages.",
+      "status": "addressed_with_evidence_gate"
+    },
+    {
+      "missing": "BPC asset condition/failure history",
+      "benchmark": "Topology structural criticality (bridges, articulation points, N-1 geometry islanding, edge betweenness)",
+      "application": "Provides a maintenance/redundancy watch-list without predicting failure probability.",
+      "status": "addressed_as_structural_proxy_not_predictive_maintenance"
+    },
+    {
+      "missing": "Validated national operational injections/loads for congestion",
+      "benchmark": "Explicit multi-injection benchmark DC power-flow using OSM geometry + standard electrical parameters",
+      "application": "The E2 system-benchmark endpoint accepts balanced explicit/modelled injections and computes branch flows/utilisation/loss sensitivity. It is not current BPC loading.",
+      "status": "addressed_for_scenario_studies_not_operational_state"
+    }
+  ]
+}

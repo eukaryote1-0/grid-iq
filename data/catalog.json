@@ -35,7 +35,7 @@
   },
   {
     "id": "sapp",
-    "name": "SAPP Demand & Supply \u2013 Botswana/BPC",
+    "name": "SAPP Demand & Supply – Botswana/BPC",
     "source": "Southern African Power Pool",
     "mode": "BUNDLED CURRENT WEB SNAPSHOT",
     "status": "integrated",
@@ -44,7 +44,8 @@
       "installed capacity",
       "operating capacity",
       "current peak demand",
-      "capacity shortfall context"
+      "capacity shortfall context",
+      "regional transfer-limit context"
     ],
     "limits": "System-level figures, not time-synchronised feeder/substation measurements.",
     "source_url": "https://www.sapp.co.zw/demand-and-supply",
@@ -115,11 +116,11 @@
     ],
     "limits": "Population is modelled gridded population, not electrical load. API results must not be converted to MW without a documented demand-intensity model.",
     "source_url": "https://api.worldpop.org/v2/",
-    "catalog_origin": "Original GridIQ dataset list: WorldPop \u2013 Botswana population/settlement layers"
+    "catalog_origin": "Original GridIQ dataset list: WorldPop – Botswana population/settlement layers"
   },
   {
     "id": "meta_population",
-    "name": "Meta High Resolution Population Density \u2013 Botswana",
+    "name": "Meta High Resolution Population Density – Botswana",
     "source": "Meta / CIESIN",
     "mode": "CSV/GIS DOWNLOAD",
     "status": "available-not-ingested",
@@ -178,7 +179,7 @@
       "OSM line R/X enrichment",
       "benchmark thermal ratings",
       "single-voltage DC transfer sensitivity",
-      "I\u00b2R loss sensitivity"
+      "I²R loss sensitivity"
     ],
     "limits": "Not BPC asset data. Conductor type and circuit count remain assumptions where OSM does not map them; results are benchmark planning sensitivities only.",
     "source_url": "https://pypsa-earth.readthedocs.io/en/latest/user-guide/configuration/",
@@ -235,7 +236,7 @@
   },
   {
     "id": "del_benchmark",
-    "name": "Domestic Electrical Load (DEL) Study \u2013 South Africa",
+    "name": "Domestic Electrical Load (DEL) Study – South Africa",
     "source": "Eskom / Stellenbosch University / UCT",
     "mode": "REGIONAL BENCHMARK",
     "status": "benchmark-not-ingested",
@@ -249,7 +250,7 @@
   },
   {
     "id": "wri_gppd",
-    "name": "WRI Global Power Plant Database \u2013 Botswana rows",
+    "name": "WRI Global Power Plant Database – Botswana rows",
     "source": "WRI / Power Africa",
     "mode": "BUNDLED HISTORICAL REFERENCE",
     "status": "integrated-reference",
@@ -261,5 +262,226 @@
     "limits": "Database is no longer actively maintained. Current Stats Botswana/BPC figures override it.",
     "source_url": "https://github.com/wri/global-power-plant-database/blob/master/raw_source_files/WRI/Botswana.csv",
     "catalog_origin": "OIC2: OpenInfraMap & Global Power Plant Database"
+  },
+  {
+    "id": "bpc_losses",
+    "name": "BPC T&D/system-loss history 2015–2024",
+    "source": "Botswana Power Corporation",
+    "mode": "BUNDLED EXTERNAL-OFFICIAL SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "642 GWh / 14.51% FY2023 validation anchor",
+      "loss trend",
+      "E2 reconciliation"
+    ],
+    "limits": "Combined T&D/system-loss accounting includes more than transmission I²R loss; transmission-model results are a diagnostic bracket, not directly equivalent.",
+    "source_url": "https://www.bpc.bw/wp-content/uploads/2026/01/BPC-IR2024-2025-web.pdf",
+    "catalog_origin": "External official anchor required by GridIQ problem/solutions reports"
+  },
+  {
+    "id": "bpc_grid_public",
+    "name": "BPC public transmission-grid and reliability context",
+    "source": "Botswana Power Corporation",
+    "mode": "BUNDLED EXTERNAL-OFFICIAL SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "official line-km/substation cross-check",
+      "post-2021 project reconciliation",
+      "fleet reliability context"
+    ],
+    "limits": "Headline grid/fleet statistics only; not branch ratings, impedances, switching state, line loading or per-asset condition.",
+    "source_url": "https://www.bpc.bw/portfolio-items/gaborone-power-project/",
+    "catalog_origin": "External BPC public evidence"
+  },
+  {
+    "id": "rural_electrification",
+    "name": "Rural electrification status + verified six-village off-grid pilot",
+    "source": "Ministry of Minerals & Energy / BPC / Census",
+    "mode": "BUNDLED OFFICIAL/EXTERNAL SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "463/565 March-2025 status",
+      "83% current BPC context",
+      "VillageFit pilot cohort",
+      "pilot population/coordinates"
+    ],
+    "limits": "Public sources do not expose a verified current exhaustive list of every still-unconnected village; this release does not fabricate one.",
+    "source_url": "https://www.bpc.bw/portfolio-items/botswana-power-corporation-electricity-generation-update/",
+    "catalog_origin": "Problem Statement / OIC2 rural-electrification evidence"
+  },
+  {
+    "id": "sapp_transfer_limits",
+    "name": "SAPP BPC–Eskom transfer-limit snapshot",
+    "source": "Southern African Power Pool",
+    "mode": "BUNDLED REGIONAL-OPERATOR SNAPSHOT",
+    "status": "integrated",
+    "relevance": 10,
+    "used_for": [
+      "interconnector constraint context",
+      "E1 import-capacity sensitivity",
+      "E2 regional corridor evidence"
+    ],
+    "limits": "Path entries are not summed as simultaneously available national import capacity without a network-path proof.",
+    "source_url": "https://www.sapp.co.zw/transfer-limits",
+    "catalog_origin": "OIC2: SAPP"
+  },
+  {
+    "id": "agriculture_2025",
+    "name": "Agricultural Census 2025 livestock headline totals",
+    "source": "Statistics Botswana",
+    "mode": "BUNDLED OFFICIAL SNAPSHOT",
+    "status": "integrated-national-context",
+    "relevance": 8,
+    "used_for": [
+      "national biogas/biomass feedstock context",
+      "VillageFit evidence gate"
+    ],
+    "limits": "National totals are not allocated to villages. Local biomass/biogas ranking remains unavailable without local feedstock evidence.",
+    "source_url": "https://www.statsbots.org.bw/agricultural-census-stats-brief-2025-livestock-sector",
+    "catalog_origin": "OIC2 / GridIQ Solutions Report"
+  },
+  {
+    "id": "renewable_costs",
+    "name": "IRENA renewable generation + BESS cost benchmarks",
+    "source": "IRENA",
+    "mode": "BUNDLED EXTERNAL BENCHMARK",
+    "status": "integrated-benchmark",
+    "relevance": 10,
+    "used_for": [
+      "E1 annualized build cost",
+      "VillageFit solar/BESS capex screening",
+      "storage economics"
+    ],
+    "limits": "Global technology benchmarks, not Botswana procurement quotes. Finance rate is a user-adjustable model assumption.",
+    "source_url": "https://www.irena.org/Publications/2025/Jul/Renewable-Power-Generation-Costs-in-2024",
+    "catalog_origin": "OIC2 IRENA"
+  },
+  {
+    "id": "community_costs",
+    "name": "Rural grid-extension cost sensitivity",
+    "source": "World Bank / ESMAP",
+    "mode": "BUNDLED EXTERNAL BENCHMARK",
+    "status": "integrated-benchmark",
+    "relevance": 9,
+    "used_for": [
+      "VillageFit grid-extension comparison",
+      "low/reference/high sensitivity"
+    ],
+    "limits": "Generic/project benchmarks, not BPC quotes; straight-line OSM distance is not an engineered route.",
+    "source_url": "https://documents1.worldbank.org/curated/en/841361468740715123/pdf/multi-page.pdf",
+    "catalog_origin": "External benchmark required because Botswana unit costs are not public"
+  },
+  {
+    "id": "gep_botswana",
+    "name": "Botswana Global Electrification Platform (GEP)",
+    "source": "World Bank / ESMAP",
+    "mode": "OPEN MODELLED DATASET REFERENCE",
+    "status": "connected-reference",
+    "relevance": 10,
+    "used_for": [
+      "least-cost electrification benchmark",
+      "settlement clusters",
+      "GHI/wind/grid-distance/demand-model metadata"
+    ],
+    "limits": "GEP is modelled planning data, not observed BPC load or grid state. Settlement-cluster download may require portal login.",
+    "source_url": "https://energydata.info/dataset/botswana-global-electrification-platform-gep",
+    "catalog_origin": "Original GridIQ dataset list / OIC2"
+  },
+  {
+    "id": "dre_botswana",
+    "name": "Botswana Distributed Renewable Energy (DRE) Atlas settlements",
+    "publisher": "World Bank Group / ESMAP / VIDA",
+    "status": "connected-reference",
+    "evidence_class": "modelled_open_settlement_planning_data",
+    "problem": "Rural electrification / VillageFit",
+    "engines": [
+      "E4",
+      "E1"
+    ],
+    "spatial": "settlement clusters / points",
+    "temporal": "2025 release",
+    "source_url": "https://energydata.info/dataset/botswana-distributed-renewable-energy-dre",
+    "ui_use": "Settlement search, population/buildings, grid-distance/accessibility and PV/agriculture context",
+    "limitations": "Not a verified BPC current unconnected-village register; modelled/derived settlement indicators."
+  },
+  {
+    "id": "agriculture_district_2015",
+    "name": "Agricultural Census 2015 district cattle counts",
+    "publisher": "Statistics Botswana (FAO archive)",
+    "status": "integrated-historical-spatial-proxy",
+    "evidence_class": "official_historical_spatial_proxy",
+    "problem": "Community energy / biogas feedstock context",
+    "engines": [
+      "E4"
+    ],
+    "spatial": "agricultural district",
+    "temporal": "2015",
+    "source_url": "https://www.fao.org/fileadmin/templates/ess/ess_test_folder/World_Census_Agriculture/Country_info_2010/New_documents2010/BSW_ENG_REP_2015.pdf",
+    "ui_use": "Historical district feedstock context only",
+    "limitations": "Historical and district-level; never allocated to a village without local evidence."
+  },
+  {
+    "id": "biogas_benchmark",
+    "name": "FAO cattle-manure biogas yield benchmarks",
+    "publisher": "FAO",
+    "status": "integrated-benchmark",
+    "evidence_class": "external_engineering_benchmark",
+    "problem": "Community renewable technology screening",
+    "engines": [
+      "E4"
+    ],
+    "spatial": "non-spatial technology benchmark",
+    "temporal": "reference",
+    "source_url": "https://www.fao.org/4/ah810e/ah810e13.htm",
+    "ui_use": "Quantify biogas volume only when explicit collectable manure mass is supplied",
+    "limitations": "Not Botswana measured digester performance; collectable fraction is not inferred."
+  },
+  {
+    "id": "eskom_hourly_benchmark",
+    "name": "Eskom metering-based hourly system demand benchmark",
+    "source": "Eskom Data Portal",
+    "mode": "LIVE REGIONAL BENCHMARK",
+    "status": "connected-benchmark",
+    "relevance": 9,
+    "used_for": [
+      "normalized 24-hour demand shape for Botswana benchmark chronology",
+      "E1 chronological storage screen"
+    ],
+    "limits": "South African hourly demand shape only. GridIQ discards the source MW magnitude and calibrates the normalized shape to Botswana published peak/annual-energy anchors; not measured Botswana demand.",
+    "source_url": "https://www.eskom.co.za/dataportal/demand-side/system-hourly-demand-and-available-capacity/",
+    "catalog_origin": "Regional benchmark used because public Botswana hourly load data are unavailable"
+  },
+  {
+    "id": "pypsa_demand_benchmark",
+    "name": "PyPSA-Earth GEGIS / DemandCast hourly demand methodology",
+    "source": "PyPSA-Earth",
+    "mode": "MODELLED GLOBAL BENCHMARK",
+    "status": "integrated-methodology-reference",
+    "relevance": 8,
+    "used_for": [
+      "hourly demand benchmark methodology",
+      "bus-level allocation methodology using population/GDP"
+    ],
+    "limits": "Modelled/synthetic-global demand methodology, not Botswana metering. Used as benchmark methodology/fallback reference only.",
+    "source_url": "https://pypsa-earth.readthedocs.io/en/latest/tutorials/use-cases/3-demand-data/",
+    "catalog_origin": "External benchmark methodology for chronological demand when BPC metering is unavailable"
+  },
+  {
+    "id": "boundary_benchmark",
+    "name": "Botswana open administrative GeoJSON benchmark geometry",
+    "source": "Location Grid Project public GIS layers",
+    "mode": "LIVE OPEN GEOMETRY SUBSTITUTE",
+    "status": "connected-benchmark",
+    "relevance": 8,
+    "used_for": [
+      "spatial joins when official Statistics Botswana polygons are unavailable",
+      "map boundaries"
+    ],
+    "limits": "Non-authoritative substitute. Must never be relabelled as Statistics Botswana official boundary geometry.",
+    "source_url": "https://storage.googleapis.com/location-grid-gis-layers/bwa_admin1.geojson",
+    "catalog_origin": "Open geometry substitute used only while authoritative Botswana polygons are unavailable"
   }
 ]

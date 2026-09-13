@@ -97,3 +97,17 @@ At no point should an external benchmark be relabelled as a BPC measurement.
 `data/derived/district_access_pressure_2022_23.json` deterministically joins the 2022 Census district population table to the NEUS 2022/23 household grid-connection percentages. Exact labels are preferred. Three spelling/format label normalisations are explicitly recorded (`Barolong`→`Borolong`, `Serowe-Palapye`→`Serowe Palapye`, `Ngamiland East`→`Ngami East`). `Southern`, `Delta`, and `CKGR` remain unmatched rather than being forced onto uncertain NEUS geography.
 
 The derived `population_weighted_access_gap_index = population × (1 - household connection rate)` is a prioritisation indicator only. Because the inputs mix people and household percentages, it must **never** be displayed or described as a count of unconnected people/households, and it is not electrical demand.
+
+## v1.7 benchmark gap-resolution policy
+
+`data/benchmarks/gap_resolution.json` is the authoritative register for public-data gaps. Each entry records the missing Botswana field, the external benchmark/proxy source, what the substitute enables, and the remaining evidence boundary.
+
+Examples:
+- BPC R/X/rating gaps → PyPSA/Pandapower standard line types for planning envelopes only.
+- BPC transformer gaps → standard transformer types for sensitivity only.
+- Botswana hourly load-shape gap → normalized Eskom metering-based hourly shape and PyPSA-Earth modelled-demand methodology; Botswana magnitude is anchored to published Botswana statistics.
+- Official boundary-file gap → open Botswana administrative GeoJSON, explicitly non-authoritative.
+- Current exhaustive unconnected-village register gap → World Bank DRE settlement candidate screening, explicitly not BPC connection-status truth.
+- BPC asset-condition/failure-history gap → structural topology criticality, not predictive maintenance.
+
+A benchmark may replace an input for a **planning scenario**. It never replaces the provenance class of the missing observation.

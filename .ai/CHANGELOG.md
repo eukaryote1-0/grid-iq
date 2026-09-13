@@ -52,22 +52,39 @@
 - Security headers/CSP verified over HTTP.
 - Current-release browser E2E remains NOT VERIFIED due sandbox browser execution failure; audit gate stays false.
 
-## 2026-09-13 — v1.5 platform bootstrap (I0–I2)
+## 2026-09-13 — v1.7 benchmark gap-resolution iteration
 
 ### Added
-- Repository scaffolding for the team repo (`grid-iq`): `CONTRIBUTING.md`, `AGENTS.md`, `Makefile`, `.gitignore`, `.github/workflows/ci.yml`, PR/issue templates, CODEOWNERS.
-- Committed external datasets with SHA-256 manifests: filtered OSM power lines (132/220/400 kV) and substations, the World Bank/AICD Botswana grid layer, and a Botswana techno-economic workbook (Zenodo/Loughborough CCG).
-- `scripts/fetch_data.sh` (large layers) and `scripts/verify_manifests.py` (CI checksum gate), plus `make data` / `make verify`.
-- `engines/` package with the first engine: **E2 national transmission loss reconciliation** (`/api/engines/loss-reconciliation`), using a scipy sparse DC power flow with numpy/pure-Python fallbacks.
+- benchmark gap-resolution register;
+- E2 balanced multi-injection benchmark DC power-flow endpoint;
+- E1 24-hour benchmark chronology surfaced in the UI;
+- DRE-derived settlement candidate register;
+- non-authoritative open boundary GeoJSON connector;
+- Eskom/PyPSA-Earth demand-benchmark catalog entries.
+
+### Changed
+- audit now separates planning closure from BPC operational validation;
+- unavailable planning inputs are resolved with named benchmarks/proxies wherever defensible;
+- public planning product score is evidence-gated and does not raise operational validation.
+
+### Validation
+- exact final validation recorded in `reports/VALIDATION.md` and `.ai/CURRENT_STATE.md`.
+
+## 2026-09-13 — v1.7 merge + platform bootstrap (team repo)
+
+### Added
+- repository scaffolding for `eukaryote1-0/grid-iq`: `CONTRIBUTING.md`, `AGENTS.md`, `Makefile`, CI workflow, PR/issue templates, CODEOWNERS, `.gitattributes`;
+- committed external datasets with SHA-256 manifests: filtered OSM power lines (132/220/400 kV), OSM substations, World Bank/AICD Botswana grid layer, Botswana techno-economic workbook (Zenodo/Loughborough CCG);
+- `scripts/fetch_data.sh`, `scripts/verify_manifests.py`, `make data`, `make verify`;
+- `engines/` package with the GridIQ E2 cross-check loss engine (`/api/engines/loss-reconciliation`);
 - `docs/ProblemStatement_GridIQ.md`, `docs/Solutions_Report_GridIQ.md`, `docs/DATA_RECONCILIATION.md`, `docs/PROVENANCE_EXTERNAL_DATASETS.md`.
 
 ### Changed
-- `requirements.txt` adds numpy/scipy for the E2 sparse solve; new `requirements-dev.txt` for pytest/openpyxl.
-- README documents the team repo, CI and data policy.
+- merged the v1.7 tree (E1–E4 planning engines, benchmark gap-resolution register, new official/benchmark/reference datasets);
+- `requirements.txt` now pins numpy/scipy/networkx for the planning engines.
 
-### Validation
-- 35 pytest tests pass; manifest verification passes; `python -m compileall` and `node --check` pass; `/api/engines/loss-reconciliation` returns a bracketed transmission-only estimate against BPC 642 GWh / AFREC 630 GWh.
+### Notes
+- BPC 2024 T&D losses (793 GWh, 16.62%) are now sourced to BPC IR 2024/25 in `data/official/bpc_system_losses.json`, resolving the earlier unverified figure; the 2023 anchor (642 GWh, 14.51%) is unchanged pending team decision.
 
-### Known limitations (open)
-- E2 is a transmission-only screen with uniform demand allocation across mapped substations; it deliberately undercounts against BPC's T&D figure. Calibration is a follow-up task.
-- The E2 dashboard panel is not yet wired; the endpoint is live.
+### Refactor
+- `app/engines.py` split into the `engines/` package (payloads, E1, E2, E3, E4, supply) per `AGENTS.md`; `app/main.py`/`app/compat_server.py` rewired; the independent E2 transmission-loss cross-check kept at `/api/engines/loss-reconciliation`.

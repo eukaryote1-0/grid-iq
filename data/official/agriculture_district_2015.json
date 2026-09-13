@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "title": "Botswana Agricultural Census 2015 traditional-sector cattle population by district",
+    "synthetic": false,
+    "evidence_class": "official_historical_spatial_proxy",
+    "publisher": "Statistics Botswana",
+    "host": "FAO World Census of Agriculture archive",
+    "source_url": "https://www.fao.org/fileadmin/templates/ess/ess_test_folder/World_Census_Agriculture/Country_info_2010/New_documents2010/BSW_ENG_REP_2015.pdf",
+    "source_table": "Table 4.1 Cattle Holdings and Population by Gender and District",
+    "scope_warning": "Historical 2015 district cattle counts provide spatial feedstock context only. They are not 2025 village livestock counts and must not be allocated to a village without additional evidence."
+  },
+  "district_cattle_2015": [
+    {
+      "district": "Ngwaketse",
+      "cattle": 70934
+    },
+    {
+      "district": "Barolong",
+      "cattle": 56540
+    },
+    {
+      "district": "Ngwaketse West",
+      "cattle": 24286
+    },
+    {
+      "district": "South East",
+      "cattle": 5515
+    },
+    {
+      "district": "Kweneng East",
+      "cattle": 72726
+    },
+    {
+      "district": "Kweneng West",
+      "cattle": 102247
+    },
+    {
+      "district": "Kgatleng",
+      "cattle": 69292
+    },
+    {
+      "district": "Central Serowe/Palapye",
+      "cattle": 148341
+    },
+    {
+      "district": "Central Mahalapye",
+      "cattle": 130390
+    },
+    {
+      "district": "Central Bobonong",
+      "cattle": 62768
+    },
+    {
+      "district": "Central Boteti",
+      "cattle": 113768
+    },
+    {
+      "district": "Central Tutume",
+      "cattle": 151016
+    },
+    {
+      "district": "North East",
+      "cattle": 26035
+    },
+    {
+      "district": "Ngamiland East",
+      "cattle": 94300
+    },
+    {
+      "district": "Ngamiland West",
+      "cattle": 95887
+    },
+    {
+      "district": "Chobe",
+      "cattle": 8000
+    },
+    {
+      "district": "Ghanzi",
+      "cattle": 59022
+    },
+    {
+      "district": "Kgalagadi South",
+      "cattle": 30295
+    },
+    {
+      "district": "Kgalagadi North",
+      "cattle": 39107
+    }
+  ],
+  "total_traditional_cattle": 1360467
+}

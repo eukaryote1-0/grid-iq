@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "title": "Botswana Agricultural Census 2025 livestock headline totals",
+    "synthetic": false,
+    "evidence_class": "official_public",
+    "publisher": "Statistics Botswana",
+    "source_url": "https://www.statsbots.org.bw/",
+    "release_date": "2026-09-09",
+    "scope_warning": "National livestock totals establish national feedstock context only. They are not spatial feedstock estimates for a specific village; VillageFit keeps biogas/biomass unranked unless local feedstock evidence is supplied."
+  },
+  "national_livestock": {
+    "cattle": 1638543,
+    "goats": 1271407,
+    "sheep": 323279
+  }
+}

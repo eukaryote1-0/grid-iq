@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "title": "Botswana Power Corporation transmission and distribution losses",
+    "evidence_class": "external_official",
+    "synthetic": false,
+    "primary_source": {
+      "publisher": "Botswana Power Corporation",
+      "title": "BPC Integrated Report 2024/2025 - Key Financial Statistics",
+      "url": "https://www.bpc.bw/wp-content/uploads/2026/01/BPC-IR2024-2025-web.pdf",
+      "note": "BPC's historical table reports T&D losses in GWh and system losses percent for 2015-2024."
+    },
+    "secondary_source": {
+      "publisher": "Botswana Power Corporation",
+      "title": "Integrated Report 2023",
+      "url": "https://www.bpc.bw/wp-content/uploads/2025/12/BPC-Integrated-Report-2023.pdf",
+      "note": "Narrative reports 642,002 MWh lost in 2023 and rounds the share to 15%."
+    },
+    "scope_warning": "BPC reports combined transmission and distribution system losses and notes that these include technical losses and revenue leakages. A transmission-only DC/I2R model must not be expected to equal this total exactly."
+  },
+  "annual": [
+    {"year": 2015, "loss_gwh": 529, "loss_pct": 14.64},
+    {"year": 2016, "loss_gwh": 564, "loss_pct": 15.18},
+    {"year": 2017, "loss_gwh": 579, "loss_pct": 16.29},
+    {"year": 2018, "loss_gwh": 509, "loss_pct": 14.89},
+    {"year": 2019, "loss_gwh": 632, "loss_pct": 14.00},
+    {"year": 2020, "loss_gwh": 676, "loss_pct": 16.91},
+    {"year": 2021, "loss_gwh": 573, "loss_pct": 15.18},
+    {"year": 2022, "loss_gwh": 617, "loss_pct": 15.35},
+    {"year": 2023, "loss_gwh": 642, "loss_pct": 14.51},
+    {"year": 2024, "loss_gwh": 793, "loss_pct": 16.62}
+  ],
+  "validation_anchor": {
+    "year": 2023,
+    "loss_gwh_table": 642,
+    "loss_mwh_narrative": 642002,
+    "loss_pct_table": 14.51,
+    "loss_pct_narrative_rounded": 15.0
+  },
+  "report_cross_checks": [
+    {
+      "name": "AFREC Africa Energy Balance 2025",
+      "reference_year": 2023,
+      "loss_gwh": 630,
+      "loss_pct": 13.8,
+      "evidence_class": "report_cited_cross_check",
+      "source_url": "https://www.au-afrec.org/publication/africa-energy-balance-2025",
+      "verification_note": "These Botswana values are transcribed from the user-supplied GridIQ Solutions Report, which cites AFREC. The AFREC publication page was verified, but the Botswana row was not independently extracted into this bundle."
+    }
+  ]
+}

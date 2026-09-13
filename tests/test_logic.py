@@ -151,6 +151,32 @@ class EngineeringBenchmarkTests(unittest.TestCase):
         self.assertFalse(r["supported"])
         self.assertIn("different mapped OSM components", r["reason"])
 
+    def test_multi_injection_dc_benchmark_balances_and_solves(self):
+        from app.logic import benchmark_multi_injection_study
+        r = benchmark_multi_injection_study(
+            self._fixture(), voltage_kv=220, case="reference",
+            injections=[
+                {"name":"source","lat":-24.0,"lon":25.0,"mw":100},
+                {"name":"load-a","lat":-24.0,"lon":25.1,"mw":-60},
+                {"name":"load-b","lat":-24.0,"lon":25.2,"mw":-40},
+            ],
+        )
+        self.assertTrue(r["supported"])
+        self.assertEqual(r["mode"], "benchmark_dc_multi_injection")
+        self.assertEqual(len(r["mapped_injections"]), 3)
+        self.assertGreater(r["summary"]["max_benchmark_utilization_pct"], 0)
+
+    def test_multi_injection_refuses_unbalanced_case(self):
+        from app.logic import benchmark_multi_injection_study
+        with self.assertRaises(ValueError):
+            benchmark_multi_injection_study(
+                self._fixture(), voltage_kv=220, case="reference",
+                injections=[
+                    {"name":"source","lat":-24.0,"lon":25.0,"mw":100},
+                    {"name":"load","lat":-24.0,"lon":25.2,"mw":-90},
+                ],
+            )
+
     def test_audit_is_gate_derived_and_separates_public_product_from_bpc_validation(self):
         from app.logic import audit_payload
         a = audit_payload()
@@ -159,3 +185,33 @@ class EngineeringBenchmarkTests(unittest.TestCase):
         self.assertEqual(a["scores"]["bpc_operational_validation"], 0.0)
         self.assertGreaterEqual(a["scores"]["public_data_planning_product"], 9.0)
         self.assertLess(a["scores"]["whole_solution"], 9.0)
+
+
+def test_representative_day_benchmark_engine_solves_with_test_shapes():
+    from engines.e1_opt import representative_day_capacity_expansion_screen
+    # Test-only deterministic fixtures; no fixture values are shipped as energy evidence.
+    demand = [0.70,0.66,0.63,0.61,0.60,0.62,0.70,0.80,0.88,0.90,0.89,0.87,
+              0.85,0.84,0.86,0.90,0.96,1.00,0.98,0.94,0.90,0.84,0.78,0.73]
+    solar = [0,0,0,0,0,0.02,0.12,0.35,0.58,0.76,0.90,1.0,
+             0.96,0.84,0.67,0.44,0.20,0.05,0,0,0,0,0,0]
+    r = representative_day_capacity_expansion_screen(
+        {"source_year":2025,"peak_demand_mw":610,"import_capacity_limit_mw":190,
+         "import_energy_price_usd_per_mwh":100,"max_solar_mw":2500,"max_bess_mw":1000,
+         "bess_duration_h":4,"real_discount_rate":0.08},
+        demand, solar,
+        demand_source_meta={"evidence_class":"test_fixture"},
+        solar_source_meta={"evidence_class":"test_fixture"},
+    )
+    assert r["status"] == "solved"
+    assert len(r["hourly"]) == 24
+    assert r["solution"]["solar_build_mw"] >= 0
+    assert "not measured BPC hourly dispatch" in r["evidence_boundary"]
+
+
+def test_v17_audit_keeps_operational_validation_zero():
+    from app.logic import audit_payload
+    a = audit_payload()
+    assert a["scores"]["public_data_planning_product"] == 9.5
+    assert a["scores"]["bpc_operational_validation"] == 0.0
+    assert a["scores"]["whole_solution"] == 8.0
+    assert a["release_gates"]["benchmark_gap_register_present"] is True

@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "title": "Botswana Distributed Renewable Energy (DRE) Atlas settlement dataset",
+    "publisher": "World Bank Group / ESMAP / VIDA",
+    "license": "CC BY 4.0",
+    "last_updated": "2025-06-12",
+    "synthetic": false,
+    "evidence_class": "modelled_open_settlement_planning_data",
+    "dataset_url": "https://energydata.info/dataset/botswana-distributed-renewable-energy-dre",
+    "resource_id": "42a50c1b-7920-4e2c-a465-e15f1f9d8711",
+    "records": 2647,
+    "warning": "DRE Atlas settlements are derived/modelled planning clusters. They are not a verified BPC list of currently unconnected gazetted villages. GridIQ uses them for settlement screening and keeps connection status evidence separate."
+  },
+  "fields_used": [
+    "geohash",
+    "lat",
+    "lon",
+    "village_name",
+    "admin_cgaz_1",
+    "admin_cgaz_2",
+    "population",
+    "num_buildings",
+    "main_road_access",
+    "dist_main_road_km",
+    "distance_to_existing_transmission_lines",
+    "distance_to_planned_transmission_lines",
+    "has_nightlight",
+    "pv_value",
+    "crop_types",
+    "ag_area",
+    "ag_value",
+    "ag_yield",
+    "num_connections",
+    "demand",
+    "demand_connection"
+  ]
+}

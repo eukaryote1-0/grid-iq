@@ -1,65 +1,78 @@
 # Architecture
 
-## Implemented v1.4 runtime
+## Implemented v1.7 runtime
 
 ```text
 Browser UI (HTML/CSS/JS)
   ├─ localStorage state persistence
-  ├─ Leaflet + OSM tiles (external runtime dependency)
-  ├─ Chart.js (external runtime dependency)
-  └─ evidence / benchmark / unknown labels
+  ├─ Leaflet + OSM tiles (pinned public CDN runtime dependency)
+  ├─ Chart.js (pinned public CDN runtime dependency)
+  └─ observed / derived / benchmark / model-output / unknown labels
              ↓
 FastAPI preferred runtime
 or stdlib compatibility server
              ↓
 Local evidence substrate
   ├─ official Botswana snapshots
-  ├─ Census + NEUS source tables
-  ├─ deterministic derived district access context
-  ├─ storage benchmark
-  ├─ electrical benchmark library
-  ├─ historical plant reference
+  ├─ Census + NEUS tables
+  ├─ BPC loss anchor/history
+  ├─ SAPP transfer limits
+  ├─ deterministic derived district-access context
+  ├─ storage / renewable / community-cost benchmarks
+  ├─ electrical + transformer benchmark libraries
+  ├─ load-profile benchmark registry
+  ├─ benchmark gap-resolution register
   └─ SHA-256 evidence manifest
              ↓
 Live connectors
-  ├─ Overpass → GeoJSON → geometry topology
-  ├─ NASA POWER → site-resource series
-  └─ WorldPop v2 → selected-area population
+  ├─ Overpass → OSM power GeoJSON → topology
+  ├─ NASA POWER → daily/hourly site resource
+  ├─ WorldPop → selected-area population
+  ├─ World Bank GEP → modelled resource/demand/grid-distance context
+  ├─ World Bank DRE → settlement screening/candidate register
+  └─ open Botswana admin GeoJSON → non-authoritative boundary substitute
              ↓
-Benchmark engineering path
-  OSM observed geometry/voltage
-      + derived line length/connectivity
-      + external PyPSA standard line parameters
-      + explicit user transfer MW
-             ↓
-  single-voltage DC transfer sensitivity
-      + benchmark thermal screen
-      + approximate I²R post-process
+Engines
+  E1 annual LP + 24h benchmark chronology
+  E2 single-transfer + multi-injection benchmark DC PF + I²R post-process
+     + BPC loss reconciliation
+  E3 topology structural criticality / N-1 geometry / edge betweenness
+  E4 VillageFit / DRE settlement screen / grid-extension / BESS / biogas evidence gate
 ```
 
 ### Backend
 - `app/main.py`: FastAPI API/static server and live async connectors.
-- `app/compat_server.py`: stdlib fallback preserving core API behavior.
-- `app/logic.py`: evidence loading, transformations, topology, electrical enrichment, DC transfer solver, scenario screening and audit gates.
+- `app/compat_server.py`: stdlib fallback preserving core local API behavior; advanced chronology may require preferred runtime.
+- `app/logic.py`: source loading, topology, electrical enrichment, DC solvers (transfer + multi-injection), scenario screening and audit gates.
+- `engines/`: planning engines, importable without the web server:
+  - `engines/payloads.py` — official/benchmark/reference payload loaders;
+  - `engines/e1_opt/` — capacity-expansion LP, site screen, representative-day chronology;
+  - `engines/e2_flow/` — `reconciliation.py` (v1.7 loss-reconciliation wrapper) and `loss_reconciliation.py` (independent transmission-loss cross-check, served at `/api/engines/loss-reconciliation`);
+  - `engines/e3_criticality/` — bridges, articulation points, N-1 islanding, edge betweenness;
+  - `engines/e4_siting/` — nearest-grid distance and the VillageFit screen;
+  - `engines/supply.py` — historical supply metrics.
+- `app/engines_router.py`: additive routes for the `engines/` package.
 
 ### Frontend
-- `web/index.html`: shell + startup-error protection.
-- `web/css/app.css`: responsive control-centre design.
-- `web/js/app.bundle.js`: authoritative application bundle; state, views, map, charts and API interaction.
+- `web/index.html`: application shell + startup-failure guard.
+- `web/css/app.css`: responsive control-centre UI.
+- `web/js/app.bundle.js`: authoritative browser application; pages, state, engine controls, map/charts and evidence audit.
 
 ### Data
-- `data/official/`: transformed published Botswana evidence.
-- `data/derived/`: deterministic combinations of published evidence; never source truth.
-- `data/benchmarks/`: external engineering/technology benchmarks.
-- `data/reference/`: non-current cross-check/reference sources.
-- `data/evidence_manifest.json`: release SHA-256 traceability for bundled data inputs.
-- `data/cache/`: runtime connector cache; generated, not authoritative source input.
+- `data/official/`: transformed public/official Botswana evidence.
+- `data/derived/`: deterministic derived data products.
+- `data/benchmarks/`: external benchmarks plus `gap_resolution.json`.
+- `data/reference/`: historical/modelled reference metadata.
+- `data/evidence_manifest.json`: release SHA-256 traceability.
+- `data/cache/`: generated connector cache, never authoritative source truth.
 
 ## Model boundaries
 
-The benchmark DC transfer model deliberately does not construct fake national load. A user chooses transfer MW, source and sink. It solves only a connected OSM component at one supported voltage. If source/sink map to separate components it refuses to invent a connection. DC PF is lossless; resistance-based I²R loss is a separately labelled post-process.
+### Planning/benchmark closure
+When a public Botswana field is unavailable, GridIQ may use a named benchmark dataset if the substitution is technically meaningful and its provenance remains visible. Examples: standard line R/X/rating envelopes, normalized regional hourly demand shape, modelled DRE/GEP settlement data, and open boundary geometry.
 
-Observed/derived/benchmark/model-output fields remain distinct. Benchmark line parameters never overwrite OSM source tags.
+### Operational validation
+No benchmark can validate actual BPC switching state, actual transformer/line ratings, real-time load/injection, equipment condition or failure history. `bpc_operational_validation` therefore remains independent and zero until authoritative BPC evidence is supplied and reconciled.
 
 ## Target architecture — planned, not implemented
 
