@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "title": "FAO crop-residue conversion benchmarks",
+    "evidence_class": "external_engineering_benchmark",
+    "synthetic": false,
+    "source_url": "https://www.fao.org/4/t1838e/T1838E0z.htm",
+    "warning": "Residue-to-product ratios estimate theoretical residue, not collectable or sustainable biomass. GridIQ requires an explicit recoverable fraction before energy potential is calculated."
+  },
+  "crop_residue_ratios": {
+    "maize_straw": 1.0,
+    "maize_cob": 0.18,
+    "millet_straw": 1.4,
+    "sorghum_straw": 1.4,
+    "wheat_straw": 1.3,
+    "barley_straw": 1.2,
+    "groundnut_shell": 0.5,
+    "rice_husk": 0.22
+  }
+}

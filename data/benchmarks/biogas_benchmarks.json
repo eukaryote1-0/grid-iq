@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "title": "Cattle-manure biogas screening benchmarks",
+    "evidence_class": "external_engineering_benchmark",
+    "synthetic": false,
+    "warning": "Potential/yield benchmarks are not Botswana measured digester performance. Collectable manure depends strongly on feeding system; year-round grazing manure should not be assumed collectable."
+  },
+  "fao_biogas_yield_m3_per_kg_cattle_dung": {
+    "low": 0.1,
+    "reference": 0.2,
+    "high": 0.3,
+    "source_url": "https://www.fao.org/4/ah810e/ah810e13.htm"
+  },
+  "fao_cattle_manure_organic_dry_solids_yield_m3_per_kg": {
+    "reference": 0.3,
+    "equivalent_m3_per_tonne_feedstock": 60,
+    "source_url": "https://openknowledge.fao.org/3/i8017en/I8017EN.pdf"
+  },
+  "collection_rule": {
+    "status": "must_be_explicit",
+    "note": "GridIQ does not infer a collectable fraction for grazing cattle. A collection fraction or directly measured collectable manure mass is required before energy potential is calculated."
+  }
+}

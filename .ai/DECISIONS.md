@@ -92,3 +92,20 @@ Status: Accepted
 
 ### Decision
 Do not hard-code 9.x scores in the UI. `audit_payload()` computes component scores from named pass/fail gates and separates public-data planning capability from BPC operational validation.
+
+## DEC-007 — Benchmark substitution closes planning gaps, not operational truth
+
+Date: 2026-09-13
+Status: Accepted
+
+### Context
+Several BPC operational fields required by the full power-system model are not publicly available.
+
+### Decision
+Use named external benchmark datasets or deterministic open-data proxies to keep planning workflows executable when technically defensible. Preserve a separate BPC operational-validation gate at zero until authoritative BPC data are supplied and reconciled.
+
+### Consequences
+- E1 can run benchmark chronology with regional/modelled load shape calibrated to Botswana anchors.
+- E2 can run benchmark single/multi-injection DC studies over OSM geometry.
+- DRE/GEP can produce settlement planning candidates without asserting connection status.
+- Benchmark line/transformer parameters must never be displayed as measured BPC values.

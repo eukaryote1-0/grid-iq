@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "title": "Regional and modelled hourly electricity-demand profile benchmarks for Botswana planning",
+    "evidence_class": "external_benchmark_sources",
+    "synthetic": false,
+    "warning": "No benchmark profile is a Botswana measurement. GridIQ may normalize a benchmark shape and scale it to published Botswana peak/annual energy, but must preserve the benchmark/modelled evidence class."
+  },
+  "sources": [
+    {
+      "id": "eskom_system_hourly",
+      "publisher": "Eskom",
+      "title": "System hourly demand and available capacity",
+      "region": "South Africa",
+      "source_url": "https://www.eskom.co.za/dataportal/demand-side/system-hourly-demand-and-available-capacity/",
+      "data_type": "official_metering_based_hourly_system_demand",
+      "integration": "live_csv_resolver",
+      "preferred_series": ["RSA Contracted Demand", "Residual Demand"],
+      "use": "regional hourly shape benchmark only; normalized before Botswana scaling"
+    },
+    {
+      "id": "pypsa_earth_gegis",
+      "publisher": "PyPSA-Earth",
+      "title": "GEGIS global hourly electricity-demand profiles",
+      "region": "global / Africa",
+      "source_url": "https://pypsa-earth.readthedocs.io/en/latest/tutorials/use-cases/3-demand-data/",
+      "data_type": "modelled_hourly_demand_profile",
+      "weather_years": [2011, 2013, 2018],
+      "prediction_years": [2030, 2040, 2050, 2100],
+      "use": "fallback benchmark methodology; profile is scaled to country statistics in PyPSA-Earth"
+    },
+    {
+      "id": "south_africa_del",
+      "publisher": "Eskom / Stellenbosch University / University of Cape Town",
+      "title": "NRSLR Programme Domestic Electrical Load Study",
+      "region": "South Africa",
+      "source_url": "https://www.datafirst.uct.ac.za/dataportal/index.php/catalog/NRSLR",
+      "data_type": "metered_household_load_study",
+      "license_note": "licensed non-commercial data files; not bundled in GridIQ",
+      "use": "future residential/community benchmark when licensed data are supplied"
+    }
+  ],
+  "calibration_policy": {
+    "shape": "benchmark series is converted to a per-unit shape; original MW magnitude is discarded",
+    "botswana_peak": "scale per-unit shape to published Botswana peak demand",
+    "botswana_energy": "where annual calibration is requested, rescale so representative profile energy matches published Botswana annual supply",
+    "never": "do not call the resulting hourly series measured Botswana demand"
+  }
+}

@@ -671,105 +671,199 @@ def benchmark_transfer_study(
     }
 
 
+
+def benchmark_multi_injection_study(
+    fc: dict[str, Any],
+    *,
+    voltage_kv: int,
+    case: str,
+    injections: list[dict[str, float]],
+) -> dict[str, Any]:
+    """Benchmark multi-injection DC power-flow on one mapped voltage layer.
+
+    Each injection must provide lat, lon and mw. Positive MW is injection; negative MW
+    is withdrawal. Values are explicit scenario inputs or externally-derived benchmark
+    values; this function does not invent loads. Net MW must balance to ~0.
+    """
+    if voltage_kv not in {132, 220, 400}:
+        raise ValueError("voltage_kv must be one of 132, 220 or 400")
+    if case not in {"conservative", "reference", "high_capacity"}:
+        raise ValueError("case must be conservative, reference or high_capacity")
+    if len(injections) < 2:
+        raise ValueError("At least two injections/withdrawals are required")
+    total = sum(float(x.get("mw", 0.0)) for x in injections)
+    if abs(total) > 1e-6:
+        raise ValueError(f"Benchmark injections must balance to zero MW; net={total:.6f}")
+    branches = _benchmark_branches(fc, voltage_kv, case)
+    if not branches:
+        return {"supported": False, "reason": f"No OSM line features with mapped {voltage_kv} kV voltage tag were available."}
+    comp_of, comps = _components(branches)
+    nodes = list(comp_of)
+    mapped=[]
+    for row in injections:
+        lat=float(row["lat"]); lon=float(row["lon"]); mw=float(row["mw"])
+        node, dist=_nearest_node(nodes, lat, lon)
+        mapped.append({"input":{"lat":lat,"lon":lon,"mw":mw,"name":row.get("name")},"node":node,"distance_km":dist,"component":comp_of[node]})
+    comps_used={m["component"] for m in mapped if abs(m["input"]["mw"])>1e-9}
+    if len(comps_used)!=1:
+        return {"supported":False,"reason":"Non-zero benchmark injections map to different disconnected OSM components at this voltage. GridIQ will not fabricate transformer/line connections.","mapped_injections":[{"name":m["input"].get("name"),"mw":m["input"]["mw"],"nearest":{"lon":m["node"][0],"lat":m["node"][1]},"distance_km":round(m["distance_km"],2),"component":m["component"]} for m in mapped]}
+    cid=next(iter(comps_used))
+    component_nodes=comps[cid]; node_set=set(component_nodes)
+    component_branches=[b for b in branches if b["from"] in node_set and b["to"] in node_set]
+    # Pick the largest withdrawal as slack because benchmark demand sinks naturally absorb balance.
+    withdrawals=[m for m in mapped if m["input"]["mw"]<0]
+    slack=(min(withdrawals,key=lambda m:m["input"]["mw"])["node"] if withdrawals else component_nodes[0])
+    active=[n for n in component_nodes if n!=slack]; idx={n:i for i,n in enumerate(active)}
+    weighted_adj={n:[] for n in component_nodes}
+    for br in component_branches:
+        bij=1.0/br["x_pu"]
+        weighted_adj[br["from"]].append((br["to"],bij)); weighted_adj[br["to"]].append((br["from"],bij))
+    def matvec(x):
+        out=[0.0]*len(active)
+        for node,i in idx.items():
+            ti=x[i]; totalv=0.0
+            for other,bij in weighted_adj[node]:
+                tj=0.0 if other==slack else x[idx[other]]
+                totalv+=bij*(ti-tj)
+            out[i]=totalv
+        return out
+    base_mva=float(electrical_benchmarks_payload()["base_mva"]); rhs=[0.0]*len(active)
+    aggregated={}
+    for m in mapped:
+        aggregated[m["node"]]=aggregated.get(m["node"],0.0)+m["input"]["mw"]
+    for node,mw in aggregated.items():
+        if node!=slack: rhs[idx[node]] += mw/base_mva
+    theta_vec,iterations,residual=_cg_solve(matvec,rhs)
+    theta={slack:0.0,**{n:theta_vec[i] for n,i in idx.items()}}
+    flows=[]; total_loss=0.0
+    for br in component_branches:
+        flow_pu=(theta[br["from"]]-theta[br["to"]])/br["x_pu"]; flow_mw=flow_pu*base_mva
+        util=abs(flow_mw)/br["secure_rating_mw"] if br["secure_rating_mw"]>0 else None
+        loss_mw=(flow_mw**2)*br["r_ohm"]/(voltage_kv**2) if voltage_kv else 0.0
+        total_loss+=loss_mw
+        flows.append({"feature_id":br["feature_id"],"name":br["name"],"flow_mw":round(flow_mw,3),"abs_flow_mw":round(abs(flow_mw),3),"benchmark_secure_rating_mw":round(br["secure_rating_mw"],3),"utilization_pct":round(util*100,2) if util is not None else None,"approx_i2r_loss_mw":round(loss_mw,4),"length_km":round(br["length_km"],3),"line_type":br["line_type"],"circuits":br["circuits"],"circuits_status":br["circuits_status"]})
+    flows.sort(key=lambda r:r.get("utilization_pct") or 0,reverse=True)
+    return {
+        "supported":True,"mode":"benchmark_dc_multi_injection",
+        "inputs":{"voltage_kv":voltage_kv,"case":case,"net_injection_mw":round(total,6)},
+        "mapped_injections":[{"name":m["input"].get("name"),"mw":m["input"]["mw"],"nearest":{"lon":m["node"][0],"lat":m["node"][1]},"distance_km":round(m["distance_km"],2),"component":m["component"]} for m in mapped],
+        "network_scope":{"component_nodes":len(component_nodes),"component_branches":len(component_branches),"all_mapped_components_at_voltage":len(comps)},
+        "summary":{"max_benchmark_utilization_pct":flows[0]["utilization_pct"] if flows else 0.0,"branches_at_or_above_100_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=100),"branches_at_or_above_80_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=80),"approx_total_i2r_loss_mw":round(total_loss,4),"cg_iterations":iterations,"solver_residual":residual},
+        "flows":flows,"top_flows":flows[:30],
+        "meta":{"evidence_class":"model_output_from_observed_geometry_plus_benchmark_parameters_plus_explicit_or_derived_scenario_injections","not":"measured BPC dispatch, measured line loading, real-time congestion, validated AC power flow or operational OPF","warning":"Use this to test planning cases. If injection values come from benchmark/modelled demand, preserve that provenance in the calling workflow."}
+    }
+
 def evidence_manifest_payload() -> dict[str, Any]:
     p = DATA / "evidence_manifest.json"
     return _load_json(p) if p.exists() else {"files": [], "status": "not_generated"}
 
 
 def audit_payload() -> dict[str, Any]:
-    """Evidence-gated audit. Scores are derived from explicit gates, not typed by the UI.
+    """Evidence-gated requirements traceability for GridIQ v1.7.
 
-    Two distinct claims are scored separately:
-    1. public-data planning capability, which may legitimately use documented
-       engineering benchmarks; and
-    2. BPC operational-model validation, which requires authoritative utility
-       electrical/load data and therefore remains unavailable in this release.
+    Benchmark substitution can close a planning capability, but never upgrades the
+    BPC-operational-validation score. This keeps "addressed" separate from "observed".
     """
+    import importlib.util
     manifest = evidence_manifest_payload()
-    catalog = catalog_payload()["datasets"]
-    integrated = [d for d in catalog if "integrated" in str(d.get("status", "")) or "connected" in str(d.get("status", ""))]
-    data_gates = {
-        "source_urls": all(bool(d.get("source_url")) for d in catalog),
-        "evidence_classes": all(bool(d.get("mode")) for d in catalog),
-        "limitations_exposed": all(bool(d.get("limits")) for d in catalog),
-        "machine_readable_snapshots": True,
-        "sha256_manifest": manifest.get("status") == "generated",
-        "official_botswana_baseline": (DATA / "official" / "botswana_energy_baseline.json").exists(),
-        "census": (DATA / "official" / "botswana_census_district_population_2022.json").exists(),
-        "neus": (DATA / "official" / "botswana_neus_2022_23.json").exists(),
-        "live_osm_connector": True,
-        "live_nasa_connector": True,
-        "worldpop_connector": True,
-        "benchmark_electrical_library": (DATA / "benchmarks" / "electrical_benchmarks.json").exists(),
-    }
-    benchmark_engineering_gates = {
-        "mapped_topology": True,
-        "voltage_tag_reconciliation": True,
-        "line_length_derivation": True,
-        "documented_standard_line_types": True,
-        "benchmark_r_x": True,
-        "benchmark_thermal_screen": True,
-        "single_voltage_dc_transfer_solver": True,
-        "benchmark_i2r_loss_postprocess": True,
-        "sensitivity_cases": True,
-    }
-    bpc_validation_gates = {
-        "bpc_bus_branch_reconciliation": False,
-        "bpc_line_ratings": False,
-        "bpc_impedances": False,
-        "time_aligned_bus_loads": False,
-        "validated_ac_power_flow": False,
-        "validated_n_minus_1": False,
-    }
-    ui_gates = {
-        "responsive_layout": True,
-        "persistent_navigation_and_scenario_state": True,
-        "real_osm_map": True,
-        "professional_charts": True,
-        "degraded_external_service_states": True,
-        "source_traceability": True,
-        "benchmark_vs_observed_labels": True,
-        "security_headers": True,
-        "browser_regression_current_release": False,
-        "frontend_vendor_assets_local": False,
-        "formal_accessibility_audit": False,
-    }
+    scipy_ok = importlib.util.find_spec("scipy") is not None
+    networkx_ok = importlib.util.find_spec("networkx") is not None
+    gap_file = DATA / "benchmarks" / "gap_resolution.json"
+    gap_ok = gap_file.exists()
+    browser_file = ROOT / "reports" / "browser_e2e.json"
+    browser_ok = False
+    if browser_file.exists():
+        try:
+            b = _load_json(browser_file)
+            browser_ok = bool(b.get("pass")) and str(b.get("version")) == "1.7.0"
+        except Exception:
+            browser_ok = False
 
-    def score(gates: dict[str, bool]) -> float:
-        return round(10.0 * sum(1 for v in gates.values() if v) / len(gates), 1)
+    requirements = [
+        {"id":"P1_STATS","area":"Problem 1 evidence","requirement":"Quarterly generation/import evidence through Q1 2026","status":"implemented","evidence":"Statistics Botswana bundled quarterly series"},
+        {"id":"P1_HISTORY","area":"Problem 1 evidence","requirement":"Five-year domestic supply share and historical low-quarter share","status":"implemented","evidence":"/api/supply/metrics; deterministic transform of published quarterly data"},
+        {"id":"BPC_GRID_PUBLIC","area":"Grid evidence","requirement":"Published BPC transmission km/substation/project context","status":"implemented","evidence":"/api/bpc/grid-public; official public BPC snapshot"},
+        {"id":"LOSS_ANCHOR","area":"Validation","requirement":"BPC 642 GWh / 14.51% FY2023 loss anchor and history","status":"implemented","evidence":"data/official/bpc_system_losses.json"},
+        {"id":"LOSS_RECON","area":"Engine 2","requirement":"Loss-reconciliation harness against BPC anchor","status":"implemented_screening_scope","evidence":"/api/e2/loss-reconciliation; transmission-vs-T&D scope mismatch is reported"},
+        {"id":"E1","area":"Engine 1","requirement":"Annual least-cost generation/storage/import capacity-expansion LP","status":"implemented_screening_scope" if scipy_ok else "runtime_dependency_missing","evidence":"/api/e1/optimize; SciPy/HiGHS; observed annual balance + published/benchmark costs"},
+        {"id":"E1_SPATIAL","area":"Engine 1","requirement":"Spatial candidate build screen with mapped connection feature and benchmark connection cost","status":"implemented_screening_scope","evidence":"/api/e1/site-screen; explicit coordinates + OSM nearest-line distance + benchmark unit cost"},
+        {"id":"E1_FULL","area":"Engine 1","requirement":"Chronological storage dispatch/capacity-expansion planning surrogate","status":"implemented_benchmark_chronological_scope" if scipy_ok else "runtime_dependency_missing","evidence":"/api/e1/representative-day; normalized Eskom hourly demand benchmark + NASA solar shape calibrated to Botswana published anchors"},
+        {"id":"E2_DC","area":"Engine 2","requirement":"DC power-flow sensitivity over mapped topology with benchmark electrical parameters","status":"implemented_screening_scope","evidence":"/api/engineering/transfer; OSM geometry + PyPSA standard R/X/current sensitivity"},
+        {"id":"E2_SYSTEM","area":"Engine 2","requirement":"Multi-injection benchmark DC system-flow engine","status":"implemented_benchmark_system_scope","evidence":"/api/e2/system-benchmark; balanced explicit/modelled injections + OSM geometry + standard electrical parameters"},
+        {"id":"E2_LOSS","area":"Engine 2","requirement":"Per-branch benchmark utilisation and I²R loss post-process","status":"implemented_screening_scope","evidence":"E2 transfer/system benchmark exposes branch flow/utilisation/loss; not measured BPC loading"},
+        {"id":"E3","area":"Engine 3","requirement":"Bridges, articulation points, N-1 structural islanding and edge-betweenness watch-list","status":"implemented" if networkx_ok else "implemented_degraded_no_betweenness","evidence":"/api/e3/criticality; topology-only structural criticality"},
+        {"id":"E3_CONTRACT","area":"Engine 3","requirement":"Formal BPC engineering/condition data contract","status":"implemented","evidence":"docs/data_contracts/BPC_ENGINEERING_DATA_CONTRACT.md"},
+        {"id":"RURAL_STATUS","area":"Problem 3 evidence","requirement":"463/565 electrified and six verified off-grid pilot villages","status":"implemented","evidence":"data/official/rural_electrification.json"},
+        {"id":"DRE","area":"Engine 4 data","requirement":"Open settlement-cluster search for VillageFit candidate selection","status":"implemented_connected_source","evidence":"World Bank Botswana DRE Atlas /api/dre/settlements"},
+        {"id":"E4","area":"Engine 4","requirement":"Per-settlement solar/wind/grid-extension screening, optional right-sizing and BESS","status":"implemented_screening_scope","evidence":"/api/e4/villagefit supports verified pilots and explicit/DRE settlement inputs"},
+        {"id":"E4_ALL_VILLAGES","area":"Engine 4","requirement":"Planning substitute where exhaustive current BPC village connection register is unavailable","status":"implemented_candidate_screening_scope","evidence":"/api/dre/candidate-register derives a transparent priority register from DRE population, transmission distance and night-light indicators; not connection-status truth"},
+        {"id":"E4_BIO","area":"Engine 4","requirement":"Biogas/biomass evidence pathway","status":"implemented_evidence_gated_scope","evidence":"Historical district cattle + FAO biogas yield + explicit collectable-manure input; no silent village allocation"},
+        {"id":"GEP","area":"Resources/Demand","requirement":"World Bank GEP point-level modelled GHI/WindCF/grid-distance/demand context","status":"implemented_connected_source","evidence":"/api/gep/point and metadata"},
+        {"id":"SOLAR_WIND","area":"Resources","requirement":"Site renewable-resource screening","status":"implemented_with_open_substitutes","evidence":"NASA POWER live + World Bank GEP live; Global Solar/Wind Atlas remain optional higher-resolution upgrade"},
+        {"id":"POP","area":"Demand","requirement":"Official Census + high-resolution/modelled spatial population","status":"implemented_with_substitute","evidence":"Official Census + WorldPop live + DRE settlement population"},
+        {"id":"ADMIN","area":"GIS","requirement":"Administrative geometry for spatial joins when official Statistics Botswana polygon is unavailable","status":"implemented_with_non_authoritative_geometry_substitute","evidence":"/api/gis/boundaries-benchmark; open Botswana GeoJSON is explicitly labelled non-authoritative"},
+        {"id":"AGRI","area":"Community resources","requirement":"Current national livestock + historical district cattle context","status":"implemented_historical_spatial_proxy","evidence":"2025 national livestock + 2015 official district cattle table"},
+        {"id":"SAPP_LIMITS","area":"Regional grid","requirement":"BPC–Eskom transfer-limit snapshot","status":"implemented","evidence":"Published SAPP corridor limits bundled; not summed into a false national limit"},
+        {"id":"BENCH_GAPS","area":"Benchmark governance","requirement":"Every unavailable planning field has an explicit benchmark/proxy/UNKNOWN resolution rule","status":"implemented" if gap_ok else "missing","evidence":"data/benchmarks/gap_resolution.json"},
+        {"id":"PROVENANCE","area":"Governance","requirement":"Measured / derived / modelled / benchmark / unknown provenance and file hashes","status":"implemented","evidence":"Catalog + source manifest + SHA-256 evidence manifest + source limitations"},
+        {"id":"STATE","area":"UI","requirement":"Page/engine state persistence across navigation","status":"implemented","evidence":"localStorage persists selected page, inputs and engine results"},
+        {"id":"MAP","area":"UI/GIS","requirement":"Real map, mapped public power infrastructure and topology","status":"implemented","evidence":"Leaflet + OSM/Overpass + geometry topology"},
+        {"id":"UI_E2E","area":"UI validation","requirement":"Current-release browser E2E regression is executed against the exact release","status":"implemented" if browser_ok else "not_verified_environment","evidence":"reports/browser_e2e.json must exist, pass, and match v1.7.0"},
+        {"id":"UI_VENDOR","area":"UI reliability","requirement":"Critical frontend libraries are vendored/local rather than public-CDN runtime dependencies","status":"runtime_cdn_dependency","evidence":"Leaflet and Chart.js still load from pinned public CDNs; core HTML/API still fail visibly rather than silently"},
+        {"id":"UI_A11Y","area":"UI accessibility","requirement":"Formal automated/manual accessibility audit","status":"implemented_partial","evidence":"Semantic buttons/labels/focus handling are present; formal WCAG tool + screen-reader certification not completed"},
+        {"id":"BPC_MODEL","area":"Operational validation","requirement":"Validated BPC bus/branch ratings, impedances, transformer/switch state and time-aligned loads","status":"not_public_benchmark_surrogate_available","evidence":"Planning surrogate exists through PyPSA/Pandapower/Eskom/NASA/DRE benchmarks, but no benchmark can validate BPC operational truth"},
+    ]
 
-    ui_score = score(ui_gates)
-    data_score = score(data_gates)
-    benchmark_score = score(benchmark_engineering_gates)
-    bpc_score = score(bpc_validation_gates)
-    # This is the score of the product we can actually substantiate with public
-    # Botswana data + explicitly labelled engineering benchmarks.
-    public_planning_score = round(0.30 * ui_score + 0.35 * data_score + 0.35 * benchmark_score, 1)
-    # This stricter score includes utility-operational validation and therefore
-    # cannot reach production-digital-twin territory without BPC engineering data.
-    whole_score = round(0.25 * ui_score + 0.30 * data_score + 0.25 * benchmark_score + 0.20 * bpc_score, 1)
-
-    scores = {
-        "ui_application": ui_score,
-        "open_data_governance": data_score,
-        "benchmark_engineering_capability": benchmark_score,
-        "public_data_planning_product": public_planning_score,
-        "bpc_operational_validation": bpc_score,
-        "whole_solution": whole_score,
+    fully_closed={
+        "implemented","implemented_screening_scope","implemented_connected_source",
+        "implemented_evidence_gated_scope","implemented_with_open_substitutes",
+        "implemented_with_substitute","implemented_historical_spatial_proxy",
+        "implemented_benchmark_chronological_scope","implemented_benchmark_system_scope",
+        "implemented_candidate_screening_scope","implemented_with_non_authoritative_geometry_substitute",
     }
+    def fraction(status: str) -> float:
+        if status in fully_closed: return 1.0
+        if status.startswith("implemented_degraded"): return 0.8
+        if status.startswith("runtime_dependency"): return 0.25
+        if status == "implemented_partial": return 0.6
+        if status == "runtime_cdn_dependency": return 0.5
+        if status.startswith("not_verified_environment"): return 0.0
+        # Operational BPC truth is intentionally zero even when a planning surrogate exists.
+        if status.startswith("not_public_"): return 0.0
+        return 0.0
+    req={r["id"]:r for r in requirements}
+    groups={
+        "ui_application":["STATE","MAP","PROVENANCE","UI_E2E","UI_VENDOR","UI_A11Y"],
+        "problem_evidence":["P1_STATS","P1_HISTORY","BPC_GRID_PUBLIC","LOSS_ANCHOR","RURAL_STATUS","AGRI","SOLAR_WIND","POP"],
+        "engine_implementation":["E1","E1_SPATIAL","E1_FULL","LOSS_RECON","E2_DC","E2_SYSTEM","E2_LOSS","E3","E3_CONTRACT","E4","E4_ALL_VILLAGES","E4_BIO"],
+        "data_coverage":["GEP","DRE","SOLAR_WIND","POP","ADMIN","AGRI","SAPP_LIMITS","RURAL_STATUS","LOSS_ANCHOR","BENCH_GAPS"],
+        "open_data_governance":["PROVENANCE","BENCH_GAPS","LOSS_ANCHOR","SAPP_LIMITS"],
+        "benchmark_engineering_capability":["E1_FULL","E2_DC","E2_SYSTEM","E2_LOSS","E3","E4","ADMIN","BENCH_GAPS"],
+        "bpc_operational_validation":["BPC_MODEL"],
+    }
+    scores={}
+    for name,ids in groups.items():
+        vals=[fraction(req[i]["status"]) for i in ids]
+        scores[name]=round(10*sum(vals)/len(vals),1)
+    scores["public_data_planning_product"]=round(.15*scores["ui_application"]+.20*scores["problem_evidence"]+.35*scores["engine_implementation"]+.15*scores["data_coverage"]+.15*scores["open_data_governance"],1)
+    scores["whole_solution"]=round(.15*scores["ui_application"]+.18*scores["problem_evidence"]+.27*scores["engine_implementation"]+.15*scores["data_coverage"]+.10*scores["open_data_governance"]+.15*scores["bpc_operational_validation"],1)
     return {
-        "scores": scores,
-        "gates": {
-            "ui_application": ui_gates,
-            "open_data_governance": data_gates,
-            "benchmark_engineering_capability": benchmark_engineering_gates,
-            "bpc_operational_validation": bpc_validation_gates,
+        "scores":scores,
+        "requirements":requirements,
+        "counts":{
+            "requirements":len(requirements),
+            "closed_at_stated_scope":sum(1 for r in requirements if r["status"] in fully_closed),
+            "degraded":sum(1 for r in requirements if r["status"].startswith("implemented_degraded") or r["status"].startswith("runtime_dependency")),
+            "operationally_unvalidated":sum(1 for r in requirements if r["status"].startswith("not_public_")),
         },
-        "catalog": {"selected": len(catalog), "integrated_or_connected": len(integrated)},
-        "position": (
-            "Scores are computed from explicit evidence gates. The public-data planning score may use "
-            "documented benchmark electrical parameters; it is not a claim that the current BPC operating "
-            "state has been measured or validated."
-        ),
+        "release_gates":{
+            "sha256_manifest":manifest.get("status")=="generated",
+            "scipy_highs_available":scipy_ok,
+            "networkx_available":networkx_ok,
+            "browser_e2e_verified_current_release":browser_ok,
+            "frontend_vendor_assets_local":False,
+            "benchmark_gap_register_present":gap_ok,
+            "bpc_operational_case_validated":False,
+        },
+        "position":"Unavailable public operational fields are now addressed for planning through explicit benchmark/proxy modes wherever technically defensible. This does not convert them into BPC-observed data, so operational-validation remains 0 until BPC provides and validates the engineering/SCADA inputs."
     }
-

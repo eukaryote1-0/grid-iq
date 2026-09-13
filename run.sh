@@ -78,7 +78,7 @@ for i in {1..50}; do
     echo
     echo "GridIQ running: http://$HOST:$PORT"
     echo "Runtime: $(cat /tmp/gridiq_health.$$)"
-    echo "Live OSM, NASA POWER and WorldPop layers require internet access."
+    echo "Live OSM/Overpass, NASA POWER, WorldPop, World Bank GEP/DRE, Eskom benchmark chronology and benchmark boundary layers require internet access."
     rm -f /tmp/gridiq_health.$$
     exit 0
   fi

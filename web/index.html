@@ -14,7 +14,7 @@
   <nav id="nav"></nav>
   <div class="topmeta"><span id="healthPill" class="pill neutral">API …</span><span id="vendorPill" class="pill neutral">Visual libs …</span><button id="dataBtn" class="btn subtle">Data evidence</button><div class="avatar">GI</div></div>
 </header>
-<div class="subbar"><div><small>NATIONAL ENERGY DIGITAL TWIN</small><h1 id="pageTitle">System Overview</h1></div><div class="sub-actions"><span class="updated" id="updatedAt">—</span><button class="btn primary" data-go="scenarios">Run scenario</button></div></div>
+<div class="subbar"><div><small>NATIONAL ENERGY DIGITAL TWIN</small><h1 id="pageTitle">System Overview</h1></div><div class="sub-actions"><span class="updated" id="updatedAt">—</span><button class="btn primary" data-go="optimizer">Run scenario</button></div></div>
 <div class="evidence-banner"><strong>Evidence boundary:</strong> Official Botswana statistics are bundled as source snapshots; OSM provides mapped public infrastructure; NASA POWER is live planning-grade weather; benchmark values are labelled and benchmark power-flow results are separated from observed BPC state. Unknown BPC electrical values remain unknown.</div>
 <main id="workspace"></main>
 <footer><span>© GridIQ Botswana prototype</span><span>OpenStreetMap © contributors · Open data attribution shown in-app</span></footer>
@@ -33,6 +33,6 @@ window.__GRID_BOOT_TIMER=setTimeout(function(){
 window.addEventListener('error',function(e){window.__GRID_LAST_ERROR=e.message||'JavaScript error';});
 window.addEventListener('unhandledrejection',function(e){window.__GRID_LAST_ERROR=String(e.reason||'Unhandled promise rejection');});
 </script>
-<script defer src="/static/js/app.bundle.js?v=1.4.0"></script>
+<script defer src="/static/js/app.bundle.js?v=1.7.0"></script>
 </body>
 </html>

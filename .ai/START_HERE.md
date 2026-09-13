@@ -1,14 +1,15 @@
 # Start here
 
-GridIQ Botswana v1.4 is an evidence-driven national energy-planning prototype that keeps **generation + storage + grid + demand** in one decision workflow.
+GridIQ Botswana v1.7 is an evidence-driven energy-planning prototype. Its central rule is **generation + storage + grid + demand share one substrate and one provenance model**.
 
 Read first:
 1. `.ai/CURRENT_STATE.md`
 2. `.ai/ARCHITECTURE.md`
 3. `docs/DATA_PROVENANCE.md`
-4. `.ai/DECISIONS.md` before architectural/model changes
-5. `.ai/ISSUES.md` before debugging
+4. `data/benchmarks/gap_resolution.json`
+5. `.ai/DECISIONS.md` before changing model boundaries
+6. `.ai/ISSUES.md` before debugging
 
-Current focus: public Botswana evidence + deterministic data fusion + explicitly-labelled engineering benchmarks. v1.4 adds WorldPop spatial population querying, Census×NEUS derived access context, OSM→benchmark electrical enrichment, and a single-voltage DC transfer sensitivity.
+Current focus: close unavailable public-data fields with named benchmark datasets/proxies where defensible, while keeping BPC operational validation separate. v1.7 adds multi-injection benchmark DC PF, benchmark chronological E1, a DRE candidate register, and benchmark boundary geometry.
 
-Non-negotiable boundary: benchmark electrical results are **planning sensitivities**, not measured BPC operating state. Do not reintroduce synthetic hourly demand/solar series or describe OSM geometry as a validated BPC bus/branch model.
+Non-negotiable boundary: a benchmark closes a **planning capability**, not BPC operational truth. Never describe benchmark line utilisation, inferred transformer parameters, regional load shapes or DRE candidate status as measured BPC state.

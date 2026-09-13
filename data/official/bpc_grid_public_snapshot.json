@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "title": "BPC public transmission-grid and reliability context",
+    "synthetic": false,
+    "evidence_class": "external_official",
+    "publisher": "Botswana Power Corporation",
+    "grid_source_url": "https://www.bpc.bw/portfolio-items/gaborone-power-project/",
+    "reliability_source_url": "https://www.bpc.bw/power-status/power-status-update/",
+    "warning": "These are public fleet/network headline statistics. They are not branch ratings, impedance, switch state, line loading or per-asset condition records."
+  },
+  "transmission_grid": {
+    "as_published_2025": {
+      "line_km": {"400_kv": 1246, "220_kv": 2200, "132_kv": 2162},
+      "substations": 54,
+      "distribution_voltage_kv": [33, 11],
+      "subtransmission_voltage_kv": [66]
+    },
+    "projects": [
+      {"name":"North West Phase 1 Transmission Grid Extension","status":"commissioned 2021"},
+      {"name":"Mochudi 132/33/11kV Substation","status":"commissioned 2024"},
+      {"name":"Tlokweng 132/11kV Substation","status":"commissioned 2024"},
+      {"name":"North West Phase 2 Transmission Grid Extension","status":"commenced"},
+      {"name":"Charles Hill New 132kV Substation","status":"commenced"},
+      {"name":"Kgalagadi Grid Extension (Jwaneng–Tsabong)","status":"planned"},
+      {"name":"Botswana–Zambia 400kV Interconnector (ZIZABONA)","status":"planned"},
+      {"name":"Botswana–South Africa 400kV Interconnector","status":"planned"}
+    ]
+  },
+  "fleet_reliability_context_2026": {
+    "mean_time_to_repair_days": 12,
+    "mean_time_between_failures_days": 120,
+    "scope": "generation-unit/fleet context reported by BPC; not line/substation asset condition",
+    "do_not_use_for": "predicting individual transmission/distribution asset failure"
+  }
+}

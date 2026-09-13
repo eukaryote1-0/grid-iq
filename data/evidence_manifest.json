@@ -3,11 +3,48 @@
   "algorithm": "SHA-256",
   "scope": "bundled GridIQ data evidence/reference/benchmark/derived files",
   "recursive_self_hashing": false,
+  "version": "1.7.0",
   "files": [
+    {
+      "path": "data/benchmarks/biogas_benchmarks.json",
+      "sha256": "60bd47d7de8c931f3ddd8252773cc8df0a20d91d9f10c927eb87ade8a3545960",
+      "bytes": 1000,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/biomass_residue_benchmarks.json",
+      "sha256": "2e78e4785a5e35f014fbab7ac96dd1fb418fb4d28eff9d024d44b0fd248cea3c",
+      "bytes": 652,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/community_costs.json",
+      "sha256": "d7eb0ca2af47c3876d4baabbba07d22c3fb0f0bc70d76facc314020dbd6f9177",
+      "bytes": 2033,
+      "evidence_class": "external_benchmark"
+    },
     {
       "path": "data/benchmarks/electrical_benchmarks.json",
       "sha256": "10535da76fdaed4a70660d28b1ec42090b9caf083f8f88866c013be7b25009ec",
       "bytes": 5340,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/gap_resolution.json",
+      "sha256": "18130958c81a16d5601ed94471ea0f20471ff15483c0d74b1b4d62e254b735e0",
+      "bytes": 5065,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/load_profile_benchmarks.json",
+      "sha256": "73c404bbcaa3ea921f129e63983eae0874bf60d3e783e11c1730d40c059258a5",
+      "bytes": 2499,
+      "evidence_class": "external_benchmark"
+    },
+    {
+      "path": "data/benchmarks/renewable_costs.json",
+      "sha256": "b2f5bd073aeb3d1e472ab8c8ca1f23b23106bb31d541b70cb3d6f496235dd009",
+      "bytes": 1929,
       "evidence_class": "external_benchmark"
     },
     {
@@ -17,9 +54,15 @@
       "evidence_class": "external_benchmark"
     },
     {
+      "path": "data/benchmarks/transformer_benchmarks.json",
+      "sha256": "7555d69b81c5946bc4f0345faca7a93333b333a2c52745cf34cd50d739c2f3cc",
+      "bytes": 1954,
+      "evidence_class": "external_benchmark"
+    },
+    {
       "path": "data/catalog.json",
-      "sha256": "3f892af00cb369c14c1f3ff0300f81d59f369efe1c4d79dfc81a4cbe62d579e1",
-      "bytes": 10307,
+      "sha256": "919d4bf5111fb8273de23b7a6da31c832a3036b8881cbe64b5b6d7d56950ac94",
+      "bytes": 20234,
       "evidence_class": "dataset_catalog"
     },
     {
@@ -27,6 +70,18 @@
       "sha256": "29a46d5ed62b441c51da7d1e03ad4ec784969ea87d2edad5b50d73574e62ac31",
       "bytes": 9603,
       "evidence_class": "derived_data_product"
+    },
+    {
+      "path": "data/official/agriculture_2025.json",
+      "sha256": "aa2d5bb4ca9f4ec89cd55130634204f04b9c9db2679b67736c6bdd23d61ae3ae",
+      "bytes": 629,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/agriculture_district_2015.json",
+      "sha256": "6612a61ad9bc9e12c33a2a1290273026ad65ffc7055c392fc9b402e880970954",
+      "bytes": 2155,
+      "evidence_class": "official_or_verified_snapshot"
     },
     {
       "path": "data/official/botswana_census_district_population_2022.json",
@@ -47,15 +102,51 @@
       "evidence_class": "official_or_verified_snapshot"
     },
     {
+      "path": "data/official/bpc_grid_public_snapshot.json",
+      "sha256": "39ccf61ac3072b762e88579fcc6c7e9a78b2790f6346a95280244248e6913c34",
+      "bytes": 1775,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/bpc_system_losses.json",
+      "sha256": "646ed20d2fca6e10602eaa6ac3c1c782f3ef78f7491a2aff716efdd1ea5da319",
+      "bytes": 2374,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/rural_electrification.json",
+      "sha256": "082fab8ec7ef30ab51ae39cba383c3de685bb2b13744923736cb3d3b2707eec0",
+      "bytes": 3974,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/official/sapp_transfer_limits.json",
+      "sha256": "d7d669c09e926c7984d1d843f0698e7bd737da95f3ee6e47a319ff95b740c3cc",
+      "bytes": 1242,
+      "evidence_class": "official_or_verified_snapshot"
+    },
+    {
+      "path": "data/reference/dre_botswana_dataset.json",
+      "sha256": "ae60cadad4c29eded6f15daabcc9dd8cd89bc5962e1215c611bcd2d5f42c495d",
+      "bytes": 1197,
+      "evidence_class": "reference_or_modelled_dataset_metadata"
+    },
+    {
+      "path": "data/reference/gep_botswana_dataset.json",
+      "sha256": "1380351ad375e724dcac6395a978dff9e4673aec51700747deb6c286a6e3a0b5",
+      "bytes": 1337,
+      "evidence_class": "reference_or_modelled_dataset_metadata"
+    },
+    {
       "path": "data/reference/wri_gppd_botswana_historical.json",
       "sha256": "7f26262c38276d3b8dd0da5015093107e8a6e4f6b9e3dece8be0be15c2d762ff",
       "bytes": 951,
-      "evidence_class": "historical_reference"
+      "evidence_class": "reference_or_modelled_dataset_metadata"
     },
     {
       "path": "data/source_manifest.csv",
-      "sha256": "9e2d770099c897984e48f55a8c066d22bf0f47121fcc24074cc4dca55c210ffb",
-      "bytes": 6929,
+      "sha256": "98ac25f8033dff9939a3ad896bdde3b0d17f3c72ea3898487103bd18dd9b4649",
+      "bytes": 6334,
       "evidence_class": "provenance_index"
     }
   ]

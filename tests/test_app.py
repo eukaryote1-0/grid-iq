@@ -17,7 +17,7 @@ class ApiTests(unittest.TestCase):
     def test_health(self):
         j = self.c.get("/api/health").json()
         self.assertEqual(j["status"], "ok")
-        self.assertEqual(j["version"], "1.4.0")
+        self.assertEqual(j["version"], "1.7.0")
 
     def test_catalog(self):
         j = self.c.get("/api/catalog").json()
@@ -69,6 +69,13 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(len(j["records"]), 28)
         self.assertIn("Southern", j["unmatched_census_districts"])
 
+
+    def test_gap_resolution_register(self):
+        j = self.c.get("/api/benchmarks/gap-resolution").json()
+        self.assertGreaterEqual(len(j["gaps"]), 8)
+        self.assertTrue(all("status" in x for x in j["gaps"]))
+        self.assertFalse(j["metadata"]["synthetic"])
+
     def test_scenario(self):
         j = self.c.post("/api/scenario", json={"storage_mw": 100, "storage_mwh": 400}).json()
         self.assertNotIn("rows", j)
@@ -81,7 +88,7 @@ def test_frontend_uses_v14_bundle():
         return
     client = TestClient(app)
     html = client.get("/").text
-    assert "/static/js/app.bundle.js?v=1.4.0" in html
+    assert "/static/js/app.bundle.js?v=1.7.0" in html
     assert 'type="module"' not in html
     assert "FRONTEND STARTUP DELAY" in html
 
@@ -93,7 +100,7 @@ def test_static_bundle_has_persistence_and_no_dummy_series():
     text = client.get("/static/js/app.bundle.js").text
     assert "localStorage" in text
     assert "resetDetachedMap" in text
-    assert "No synthetic hourly" in text
+    assert "no synthetic hourly" in text
     assert "dummyScenario" not in text
     assert "Math.exp" not in text
     assert "/api/neus" in text
@@ -102,4 +109,4 @@ def test_static_bundle_has_persistence_and_no_dummy_series():
     assert "/api/engineering/transfer" in text
     assert "/api/worldpop/population" in text
     assert "benchmark_engineering_capability" in text
-    assert "state.osm.payload" in text
+    assert "data.osm" in text
