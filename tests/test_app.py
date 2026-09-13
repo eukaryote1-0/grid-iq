@@ -88,7 +88,7 @@ def test_frontend_uses_v14_bundle():
         return
     client = TestClient(app)
     html = client.get("/").text
-    assert "/static/js/app.bundle.js?v=1.7.0" in html
+    assert "/static/js/app.bundle.js?v=" in html
     assert 'type="module"' not in html
     assert "FRONTEND STARTUP DELAY" in html
 

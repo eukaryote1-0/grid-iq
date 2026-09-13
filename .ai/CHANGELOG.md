@@ -113,3 +113,8 @@
 - Upstreams: 4 s connect timeouts and a 10-minute circuit breaker for GEP/DRE so blocked hosts fail fast.
 - Frontend: session API cache (GET 60 s, POST 5 min), tile URL switched to the proxy, E3 defaults to 220 kV.
 - Measured (warm): OSM 0.57 s, E2 system 0.15 s, E3 220 kV 0.9 s then 7 ms cached, E4 0.09 s, cross-check 5 ms, tiles 4 ms.
+
+### UI (demo branch)
+- Replaced the flat top nav with a grouped sidebar (PLAN / MONITOR / TRUST), inline SVG icons, active accent, collapse persisted, mobile off-canvas drawer, and a demo-flow checklist with step numbers.
+- Added a one-line page intent under each page title and Option A/B preset chips on the Optimizer.
+- Fixed data-key mismatches that showed zeros/blanks: BPC grid km/substations, Q1 2026 Eskom share, SAPP peak demand, generation mix shares, storage benchmark CAPEX, NEUS connected households and district populations.
