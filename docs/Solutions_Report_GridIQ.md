@@ -28,9 +28,11 @@ Because all four read the same substrate, no recommendation can silently
 contradict another. This is what makes GridIQ a platform rather than four scripts.
 
 Our differentiator is that the model's loss output is **checkable against a figure
-BPC has already published** (642 GWh, FY2023). So the demo is a falsifiable test,
-not a presentation: if the numbers reconcile, every other engine inherits the
-credibility of a substrate that just proved itself.
+BPC has already published** (642 GWh / 14.51% in 2023; 793 GWh / 16.62% in 2024).
+So the demo is a falsifiable test, not a presentation: if the numbers reconcile,
+every other engine inherits the credibility of a substrate that just proved
+itself. All four engines are implemented in the working prototype; the current
+focus is verification and closing the remaining data gaps.
 
 **One-sentence pitch:** GridIQ helps BPC and Ministry planners — and the
 households and villages they serve — who struggle with a grid planned
@@ -112,35 +114,36 @@ and re-located by Engine 4 without contradiction. *(The topology is drawn from
 OpenStreetMap/OpenInfraMap — the closest open substitute for BPC's own grid data —
 cross-checked against the World Bank/AICD Botswana grid layer (2006-vintage, which
 captures only ~40% of the current 400/220/132 kV network), and patched with BPC's
-public post-2021 additions: North West Phase 1, Mochudi and Tlokweng.)*
+publicly listed additions (North West Phase 1, Mochudi–Phakalane 132 kV, Mochudi and
+Ramotswa and Tlokweng substations).*
 
-### 2.2 Engine 1 — System-wide optimisation
+### 2.2 Engine 1 — System-wide optimisation (implemented: screening scope)
 
-- **What it is:** a screening capacity-expansion model over representative periods.
-- **What it computes:** the combination of generation, storage and grid capacity that delivers demand at the lowest total system cost — minimising imports plus capital cost plus losses.
-- **Inputs:** topology, district demand, solar/wind resource, existing fleet, import volumes, candidate sites, regional cost benchmarks.
-- **User-facing artifact:** a ranked build plan — site, technology, MW, connection point and projected import reduction per Pula.
+- **What it is:** an annual least-cost capacity-expansion LP, plus a 24-hour benchmark chronology.
+- **What it computes:** the mix of solar, wind, storage and imports for a given year that meets peak and reserve at least cost — imports plus capital plus losses — rather than judging one project at a time.
+- **Inputs:** observed annual generation/import balance, SAPP peak and reserve anchors, published renewable/storage cost benchmarks, and user scenario limits.
+- **User-facing artifact:** a ranked build mix for the year, plus a representative-day dispatch chronology. It is deliberately not a chronological production-cost model, and says so in the output.
 
-### 2.3 Engine 2 — Flow, congestion & losses
+### 2.3 Engine 2 — Flow, congestion & losses (implemented: benchmark scope)
 
-- **What it is:** a linearised DC power-flow / OPF model over the real topology.
-- **What it computes:** where flow concentrates, which constraints bind, loss per line, and the redispatch cost when a constraint forces costly supply. *(Power is not "routed": current divides across all parallel paths by impedance, so we model constraints, not shortest paths.)*
-- **Inputs:** topology, assumed r/x by voltage class, demand, injections.
-- **User-facing artifact:** a loss and congestion panel, reconciled against BPC's published figure (642 GWh, FY2023; World Bank 15.35%, 2021; AFREC ~630 GWh / 13.8%, 2023). Scope is stated openly: our model is transmission-level, BPC's figure is T&D.
+- **What it is:** a linearised DC power-flow screen over the mapped topology — a single-transfer study and a balanced multi-injection system study.
+- **What it computes:** branch flows, utilisation and I2R loss sensitivity from explicit injections. *(Power is not "routed": current divides across all parallel paths by impedance, so we model constraints, not shortest paths.)*
+- **Inputs:** mapped 132/220/400 kV geometry, standard-type R/X/current envelopes in three sensitivity cases, and explicit injections.
+- **User-facing artifact:** a flow/utilisation view and a loss-reconciliation panel against BPC's published series — **2023 anchor 642 GWh / 14.51%**, **2024 793 GWh / 16.62%** (now sourced to BPC IR 2024/25) — cross-checked by AFREC (~630 GWh / 13.8%, 2023) and the World Bank (15.35%, 2021). Scope is stated openly: benchmark model, not BPC state; transmission-only versus BPC's T&D. Our independent transmission-loss engine is kept as a separate cross-check at `GET /api/engines/loss-reconciliation`.
 
-### 2.4 Engine 3 — Asset-risk screening, with a data contract
+### 2.4 Engine 3 — Asset-risk screening, with a data contract (implemented)
 
-- **What it is:** topology-based criticality, not a prediction model.
-- **What it computes:** a ranked watch-list of lines, substations and transformers by structural criticality (no redundant path) and estimated stress.
-- **Inputs:** topology alone.
-- **User-facing artifact:** a ranked watch-list plus a one-page data contract listing the exact BPC fields (age, condition, inspections, failure history, ratings, impedances) that would upgrade the proxy into prediction.
+- **What it is:** topology-based structural criticality, not a prediction model.
+- **What it computes:** bridges, articulation points, N-1 geometry islanding and edge betweenness, ranked into a maintenance/redundancy watch-list.
+- **Inputs:** mapped topology alone.
+- **User-facing artifact:** a ranked watch-list plus the **BPC engineering data contract** (`docs/data_contracts/BPC_ENGINEERING_DATA_CONTRACT.md`) — the exact fields (bus/branch IDs, ratings, R/X, switch state, time-aligned loads, condition and failure history) that would upgrade the proxy into a validated model.
 
-### 2.5 Engine 4 — VillageFit
+### 2.5 Engine 4 — VillageFit (implemented)
 
-- **What it is:** a per-village technology recommender.
-- **What it computes:** the best-fit mix of solar, wind, biomass, biogas or hybrid for each unconnected village, scored against the cost of extending the line — including how the village uses power (e.g. evening study, where solar alone fails).
-- **Inputs:** settlement layer (OSM/HDX), population density, Solar Atlas/NASA POWER, livestock and crop data, distance to grid, terrain.
-- **User-facing artifact:** an off-grid shortlist with right-sized systems, and a "no-build" alternative fed back into Engine 1.
+- **What it is:** a per-settlement technology recommender.
+- **What it computes:** the best-fit mix of solar, wind, biogas, biomass or hybrid — with storage — scored against the cost of extending the line, including how the village uses power (e.g. evening study, where solar alone fails). Biogas is computed only when an explicit collectable manure mass is supplied.
+- **Inputs:** a pilot-village register or custom settlement, live NASA POWER resource context, World Bank GEP/DRE planning indicators, distance to mapped lines, and benchmark community costs.
+- **User-facing artifact:** a right-sized recommendation with the conditions that would change it; the "no-build" alternative feeds back into Engine 1.
 
 **Integration note:** VillageFit is activated from the same substrate as the
 national engines. A village's power is not a separate rural project; it is a
@@ -222,75 +225,107 @@ possibility.
 
 ### 3.3 Technology stack
 
+**Implemented today (v1.7).**
+
 | Layer | Technology | Role |
 |---|---|---|
-| Geospatial database | PostgreSQL + PostGIS + pgRouting | Substrate of record: topology, demand, resources, scenario results. |
-| API | FastAPI + GeoAlchemy2 | Graph queries, scenario management, validation endpoints. |
-| Job queue | Celery + Redis | Runs optimisation, power-flow and siting jobs off-request. |
-| Engine 1 | linopy + HiGHS | LP capacity-expansion screening. |
-| Engine 2 | PyPSA / pandapower | DC power flow, congestion, losses. |
-| Engine 3 | networkx / igraph | Criticality, bridges, N-1 islanding. |
-| Engine 4 | GeoPandas + rasterio | Raster sampling and per-village scoring. |
-| Frontend | Next.js + MapLibre / Deck.GL | Map layers, panels, what-if slider. |
-| Tiles | pg_tileserv + TiTiler | Vector tiles from PostGIS; COG rasters for the Solar Atlas. |
-| Data integration | Overpass API, NASA POWER API, SAPP, Stats Botswana portal | Reproducible ingestion with provenance. |
+| Runtime | Python + FastAPI/Uvicorn | API and static server. |
+| Fallback runtime | Dependency-free stdlib server | Same core API contract if FastAPI cannot be installed. |
+| Evidence substrate | Bundled JSON + SHA-256 manifests | Observed/derived/benchmark/reference separation and traceability. |
+| Engine 1 | scipy `linprog` (HiGHS) | Annual least-cost capacity-expansion screen. |
+| Engine 2 | scipy sparse DC power flow | Single-transfer and balanced multi-injection benchmark studies + I2R post-processing. |
+| Engine 3 | networkx (+ pure-Python fallback) | Bridges, articulation points, N-1 islanding, edge betweenness. |
+| Engine 4 | Python + bundled benchmark/cost tables | VillageFit settlement screening. |
+| API surface | FastAPI routes under `/api/e1`, `/api/e2`, `/api/e3`, `/api/e4`, `/api/engines` | Planning engines and the independent loss cross-check. |
+| Frontend | HTML/CSS/vanilla JS control centre (Leaflet + Chart.js) | Overview, Network, Optimizer, Criticality, VillageFit, Generation, Storage, Demand, Data, Audit. |
+| Live connectors | OSM/Overpass, NASA POWER, WorldPop, World Bank GEP/DRE, Eskom benchmark chronology | External evidence with degraded states, never substitutes. |
 
-### 3.4 How the system works end-to-end
+**Target architecture (planned, not implemented).** PostgreSQL + PostGIS +
+pgRouting; Celery/Redis workers; vector tiles + COG/TiTiler rasters; Next.js +
+MapLibre/Deck.GL. This is the scale-out path, not the current build — the report
+does not present it as delivered.
 
-1. **Ingest** — open datasets are pulled and normalised; every row carries a provenance tag (measured, inferred, assumed).
-2. **Substrate** — topology is built, cleaned (endpoints snapped, duplicates merged, connectivity checked) and patched with post-2021 additions.
-3. **Layers** — demand is allocated to buses via population density; resources are attached per node and district.
-4. **Engines** — E2 runs first and its loss output is reconciled against 642 GWh. Only then do E1 (build plan), E3 (criticality) and E4 (VillageFit) run on the validated substrate.
-5. **Scenarios** — every dashboard slider is a parameter bundle, so "what-if: add 100 MW here" never requires re-coding.
-6. **Presentation** — the map, the loss-reconciliation panel and the build plan are served to the dashboard.
+### 3.4 How people use GridIQ
+
+GridIQ is used through a control-centre UI. Three journeys matter most, and each
+runs end to end on the implemented prototype.
+
+**Planner flow — decide the next connection (Engines 1 + 2 + 3).**
+
+1. The planner opens **Overview** and reads the national position: generation/import mix, published T&D losses (BPC 2023 anchor 642 GWh / 14.51%; 2024 793 GWh / 16.62%) and SAPP peak/reserve anchors.
+2. On **Network**, they load the mapped grid (`/api/osm/power`) and see voltage classes, topology and evidence labels — no BPC operating state is implied.
+3. They run a **benchmark system study** (`/api/e2/system-benchmark`) with explicit injections to see branch flows, utilisation and loss sensitivity, then `POST /api/e2/loss-reconciliation` to compare a modelled loss against BPC's published series.
+4. On **Optimizer**, they run the least-cost screen (`/api/e1/optimize`) for the year, and optionally the representative-day chronology (`/api/e1/representative-day`), to get the generation/storage/import mix.
+5. They test a candidate site (`/api/e1/site-screen`) to see the grid-connection cost and whether a smaller local option wins.
+6. They open **Criticality** (`/api/e3/criticality`) for the bridges/N-1/betweenness watch-list, and take the **BPC engineering data contract** as the concrete ask that would upgrade the screen to operational validation.
+
+**Community flow — power one village (Engine 4, VillageFit).**
+
+1. On **VillageFit**, the user selects a verified pilot village or enters a custom settlement (name, lat/lon, population).
+2. GridIQ pulls live NASA POWER resource context and World Bank GEP/DRE planning indicators.
+3. It scores solar, wind, biogas and hybrid against the cost of extending the line — biogas only when an explicit collectable manure mass is supplied.
+4. It returns a right-sized recommendation and the conditions that would change it; the "no-build" alternative feeds back into the national plan (Engine 1).
+
+**Custodian flow — verify any number (Data + Audit).**
+
+1. On **Data**, the user sees the dataset catalog and the **benchmark gap-resolution register** — which gap each benchmark closes, and what it must never claim.
+2. On **Audit**, they see scores computed from named evidence gates, with **BPC operational validation held at 0.0**.
+3. Every figure traces to its source and its SHA-256 manifest entry; unavailable fields stay labelled, and no benchmark is upgraded to a measured BPC fact.
+
+**The one complete use case** (used verbatim as the pitch spine): *Gomolemo's
+village -> the planner's screen -> the decision.*
 
 ### 3.5 What is real vs simulated
 
 | Category | Content |
 |---|---|
-| Real (open data) | Topology, generation fleet, district demand, access rates, resource layers, historical generation/import/loss series. |
-| External (open, outside hub) | BPC loss series; AICD/BPA 2006 grid layer; Botswana techno-economic costs and T&D parameters. |
-| Benchmarked (analogue) | Africa grid map, gridfinder, SciGRID/POMATO line parameters, GEP/OnSSET method, ENTSO-E/AEMO methods. |
-| Assumed (labelled) | Line ratings/impedances, bus-level demand allocation, future demand growth. |
-| Simulated (demo) | Scenario outputs — build plans, criticality rankings and off-grid shortlists are model products, not measured results. |
+| Real (open, hub) | Topology, generation fleet, district demand, access rates, resource layers, historical generation/import/loss series. |
+| External (open, outside hub) | BPC loss series including 2024 (793 GWh / 16.62%); AICD/BPA 2006 grid layer; rural electrification and SAPP transfer-limit snapshots; Botswana techno-economic workbook. |
+| Benchmarked (analogue) | Africa grid map, gridfinder, SciGRID/POMATO line parameters, PyPSA transformer/biogas/biomass/community/renewable cost tables, GEP/OnSSET method, normalized Eskom hourly shape, ENTSO-E/AEMO methods. |
+| Assumed (labelled) | Line ratings/impedances, settlement demand allocation, demand growth, loss-load factor. |
+| Unknown (held) | BPC ratings, switching state, substation loads, asset condition and failure history. BPC operational validation stays 0.0. |
+| Simulated (demo) | Scenario outputs — build mixes, branch flows, criticality rankings and off-grid shortlists are model products, not measured results. |
 
 ## 4. Implementation & Next Steps
 
 ### 4.1 Current status
 
-- Problem validation completed against named open datasets (this brief).
-- Architecture fixed: one substrate, four engines, Option B stack.
-- Data mapped and verified in the OIC2 hub, including one external anchor (BPC 642 GWh).
-- Regional/benchmark data ingested and validated: the World Bank/AICD Botswana grid layer (cross-check) and a Botswana techno-economic dataset (costs and T&D parameters, Zenodo). Provenance recorded in `datasets/PROVENANCE.md`.
-- Prototype: substrate build and the loss-reconciliation panel are the first build targets at the hackathon.
+- Problem validation completed against named open datasets (see the Problem Statement brief).
+- **Four engines are implemented and running on one shared substrate:** E1 least-cost capacity screen + representative-day chronology, E2 benchmark flow/losses, E3 structural criticality, E4 VillageFit — plus an independent transmission-loss cross-check.
+- **Data:** a 30-dataset catalog and a benchmark gap-resolution register; committed external datasets (filtered OSM grid + substations, AICD/BPA layer, Botswana techno-economic workbook) with SHA-256 manifests; large regional layers fetched by script.
+- **Team repo:** `eukaryote1-0/grid-iq`, with CI, a PR-only workflow, tests and manifest verification.
+- **Audit:** public-data planning product ~ 9.5/10; BPC operational validation held at **0.0**; browser E2E on the exact release still to be run on a workstation.
 
 ### 4.2 Limitations and mitigation
 
 | Limitation | Impact | Mitigation |
 |---|---|---|
-| Line ratings/impedances are not openly published | Constraints are estimated. | Calibrate from SciGRID/POMATO defaults; report a bracketed range; publish a data contract for BPC. |
-| Substation-level demand is limited (not openly published) | Demand is allocated, not measured. | Dasymetric allocation from NEUS + population density, labelled an assumption. |
+| Line ratings/impedances are not openly published | Constraints are estimated. | Standard-type envelopes in three cases; bracketed range; data contract for BPC. |
+| Substation-level demand is limited (not openly published) | Demand is allocated, not measured. | Settlement/substation allocation from official context, labelled an assumption. |
 | Failure history is not openly available | Prediction is not supportable today. | Criticality screening only; state it plainly. |
-| Botswana-specific capex data is limited | Build-plan costs are indicative. | Use the Botswana techno-economic dataset (T&D and plant costs) plus regional benchmarks, all labelled. |
-| OSM topology predates new lines | Missing post-2021 assets. | Manual patch (North West Phase 1, Mochudi, Tlokweng); AICD/BPA layer as cross-check. |
-| Representative periods, not 8,760 h | Not a full expansion model. | Position as a screening tool; do not imply more. |
-| Model is transmission-level; BPC losses are T&D | Direct reconciliation is approximate. | Report the transmission bracket against BPC's T&D total and explain the scope. |
+| Botswana-specific capex data is limited | Build-mix costs are indicative. | Botswana techno-economic workbook plus regional benchmarks, all labelled as assumptions. |
+| No Botswana hourly load series | Chronology cannot use metered national demand. | Normalized regional shape scaled to Botswana annual/peak anchors, labelled `benchmark_chronology`. |
+| OSM topology predates new lines | Missing post-2021 assets. | AICD/BPA cross-check; BPC public snapshot lists completed projects to patch. |
+| Annual LP + representative day, not 8,760 h | Not a full production-cost model. | Position as a screening tool; the output contract says so. |
+| Model is transmission-level; BPC losses are T&D | Direct reconciliation is approximate. | Report the transmission bracket against BPC's T&D series (642 GWh 2023; 793 GWh 2024) and explain the scope. |
 | Topology is OSM/AICD-derived, not BPC's own | Approximate; not enough for precise power flow without ratings. | State it openly; the data contract is the path to BPC's real model. |
+| Browser E2E not verified in the build sandbox | Final visual regression unconfirmed. | Run `scripts/browser_smoke.sh` on a workstation before presenting. |
 
 **Limitations we accept.** We would rather name these than have a judge find them.
 The topology is an open approximation, not BPC's own; line parameters are
-benchmarked; demand is allocated from district data; there is no hourly Botswana
-load series, so representative periods use labelled analogue profiles; and the
+benchmarked; demand is allocated from official context; there is no Botswana
+hourly load series, so chronology uses a labelled analogue shape; and the
 distribution network is modelled only as an aggregate. None of these stop the
-falsifiable test we lead with — reconciling modelled losses against BPC's published
-642 GWh — and each has a named path to improvement.
+falsifiable test we lead with — reconciling a modelled transmission loss against
+BPC's published T&D series (642 GWh / 14.51% for 2023, 793 GWh / 16.62% for 2024)
+— and each has a named path to improvement.
 
 ### 4.3 Roadmap
 
 | Phase | Timeline | Activities | Success metric |
 |---|---|---|---|
-| 1. Substrate + test | Hackathon Day 1 | Ingest, build/clean topology, allocate demand, run loss reconciliation. | Modelled loss within a stated bracket of 642 GWh. |
-| 2. Engines + interface | Hackathon Days 2–3 | E2 flow/congestion, E3 criticality, E4 siting, E1 screening; map and panels. | All four engines run on one substrate; dashboard live. |
+| 1. Substrate + engines | Done | Topology, demand layers, E1–E4 on one substrate; benchmark gap-resolution register. | Four engines run on one substrate; 40 tests green; manifests verified. |
+| 2. Interface + verification | Hackathon | Wire the loss cross-check into the reconciliation panel; run browser E2E on a workstation. | A verified demo path from Overview to Criticality and VillageFit. |
 | 3. Pilot (proposed) | 12 weeks post-hackathon | Reconcile with BPC; one-region screening; agree the data contract. | Deployment-ready pilot plan with partner metrics. |
 
 ### 4.4 Partners and required resources
@@ -306,21 +341,22 @@ falsifiable test we lead with — reconciling modelled losses against BPC's publ
 
 ## 5. Impact & The Ask
 
-**One anchor number.** **642 GWh** of electricity was lost in FY2023 — **14.51% of
-units** — by BPC's own Integrated Annual Report 2023, cross-checked by the World
+**One anchor number.** BPC's own reports put T&D losses at **642 GWh (14.51%) in
+2023** and **793 GWh (16.62%) in 2024**, independently cross-checked by the World
 Bank (15.35%, 2021) and AFREC (~630 GWh, 13.8%, 2023). GridIQ's first job is to
-reproduce that number from open data, because a model that can reproduce the
-losses BPC already reports can be trusted on the decisions it recommends.
+reproduce that range from open data, because a model that can reproduce the losses
+BPC already reports can be trusted on the decisions it recommends. *(Headline year
+to be fixed with the team.)*
 
 **One scale sentence.** GridIQ scales by planning the existing grid as one system,
 with every recommendation traced to a named open dataset — no new data collection
 required to start.
 
 **One 12-week ask.** Over 12 weeks, working with BPC and Statistics Botswana, we
-will reconcile the model's loss output against BPC's published 642 GWh, complete a
-system-cost screening for one region's next connection decision, and agree the
-data contract that turns asset-risk screening into prediction — producing a
-deployment-ready pilot plan with partner-ready metrics.
+will reconcile the model's loss output against BPC's published 642/793 GWh series,
+complete a system-cost screening for one region's next connection decision, and
+agree the data contract that turns asset-risk screening into a validated model —
+producing a deployment-ready pilot plan with partner-ready metrics.
 
 ## 6. AI Disclosure
 
