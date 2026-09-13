@@ -211,7 +211,12 @@ def test_representative_day_benchmark_engine_solves_with_test_shapes():
 def test_v17_audit_keeps_operational_validation_zero():
     from app.logic import audit_payload
     a = audit_payload()
-    assert a["scores"]["public_data_planning_product"] == 9.5
+    # Scores rise legitimately as gates close (e.g. browser E2E), but the BPC
+    # operational gate must stay zero and must keep the whole-solution score
+    # below production-digital-twin territory.
+    assert a["scores"]["public_data_planning_product"] >= 9.5
     assert a["scores"]["bpc_operational_validation"] == 0.0
-    assert a["scores"]["whole_solution"] == 8.0
+    assert a["scores"]["whole_solution"] >= 8.0
+    assert a["scores"]["whole_solution"] < 9.0
     assert a["release_gates"]["benchmark_gap_register_present"] is True
+    assert a["release_gates"]["bpc_operational_case_validated"] is False

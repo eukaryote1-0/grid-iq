@@ -91,3 +91,38 @@
 
 ### Docs
 - Solutions Report: added three user journeys (planner, community, custodian) modelled on BEAM's flow sections; split the technology stack into implemented-today vs target architecture; surfaced the 2024 BPC loss figure (793 GWh / 16.62%) now that it is sourced.
+
+## 2026-09-13 — demo build-out (branch feat/demo-ui)
+
+### Added
+- Offline demo harness: `scripts/build_demo_fixtures.py`, `scripts/prewarm_demo.py`, `scripts/demo.sh`, `data/demo/scenarios_demo.json` and committed NASA fixtures for the six pilot villages.
+- `tests/test_demo_harness.py`.
+
+### Fixed
+- `app/logic.py`: mapped vertices are snapped to ~100 m and branches are emitted per vertex pair, so the national 220/132/400 kV graph is connected (E2 system study previously refused with disconnected components).
+- `app/logic.py`: multi-injection DC solve gained a scipy sparse direct path (0.6 s vs 43 s pure Python) with the CG fallback retained.
+- `engines/e3_criticality`: replaced the recursive bridge/articulation DFS (RecursionError on the national graph) with networkx plus an iterative Tarjan fallback; added analysis caps and honest total-vs-analysed counts.
+
+### Notes
+- GEP and Eskom upstreams are blocked from this environment; the demo degrades to NASA-cached resource evidence and skips the optional chronology.
+
+### Performance (demo branch)
+- Server: process-wide parsed-JSON cache keyed by path+mtime; memoised OSM evidence summary, multi-injection solve, E3 payloads, E3 graphs and the E2 cross-check; scipy direct solve for the E2 system study.
+- Transport: gzip (level 4), browser caching for `/static` (1 day) and `/api/osm/power` (5 min), orjson serialisation.
+- Map: local bounded tile proxy `/tiles/{z}/{x}/{y}.png` backed by `data/cache/tiles` plus `scripts/prewarm_tiles.py` (379 tiles, 2.6 MB).
+- Upstreams: 4 s connect timeouts and a 10-minute circuit breaker for GEP/DRE so blocked hosts fail fast.
+- Frontend: session API cache (GET 60 s, POST 5 min), tile URL switched to the proxy, E3 defaults to 220 kV.
+- Measured (warm): OSM 0.57 s, E2 system 0.15 s, E3 220 kV 0.9 s then 7 ms cached, E4 0.09 s, cross-check 5 ms, tiles 4 ms.
+
+### UI (demo branch)
+- Replaced the flat top nav with a grouped sidebar (PLAN / MONITOR / TRUST), inline SVG icons, active accent, collapse persisted, mobile off-canvas drawer, and a demo-flow checklist with step numbers.
+- Added a one-line page intent under each page title and Option A/B preset chips on the Optimizer.
+- Fixed data-key mismatches that showed zeros/blanks: BPC grid km/substations, Q1 2026 Eskom share, SAPP peak demand, generation mix shares, storage benchmark CAPEX, NEUS connected households and district populations.
+
+### Data + UI (demo branch, v1.9)
+- Village register: `data/official/botswana_settlements.json` (2,647 World Bank DRE Atlas settlement clusters, CC-BY-4.0, six verified pilots flagged) built by `scripts/build_settlements.py`; `GET /api/villages` serves it.
+- VillageFit village picker is a native click-to-browse `<select>` grouped `Verified off-grid pilots` first, then all settlements, with a selected-village hint; Run VillageFit zooms the map to the village.
+- Branding: sidebar logo replaced with `web/brand/logo.png` (also the favicon); app display name is **Eukaryote 1.0** (UI, page title, API title).
+- Removed the global evidence banner and per-page evidence strips; hidden the VillageFit NASA/GEP checkboxes (defaults: NASA cached, GEP off).
+- Generation page now shows 2024 annual generation/imports/coverage and BPC 2024 losses (793 GWh / 16.62%).
+- Fixed display key mismatches (BPC grid km, Eskom share, peak demand, generation mix, storage CAPEX, NEUS households, district populations).

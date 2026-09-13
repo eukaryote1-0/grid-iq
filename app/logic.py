@@ -12,8 +12,36 @@ CACHE = DATA / "cache"
 CACHE.mkdir(exist_ok=True)
 
 
+_JSON_CACHE: dict[str, tuple[int, int, Any]] = {}
+
+
+def clear_json_cache() -> None:
+    """Drop the process-wide parsed-JSON cache (used by live refresh paths)."""
+    _JSON_CACHE.clear()
+
+
 def _load_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
+    """Parse JSON once per (path, mtime, size) and keep it in process memory.
+
+    The OSM layer alone is ~2.6 MB and was re-read and re-parsed on every
+    request; this makes repeat calls return the same object in microseconds.
+    Callers treat the returned object as read-only.
+    """
+    key = str(path)
+    try:
+        st = path.stat()
+        stamp = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        return json.loads(path.read_text(encoding="utf-8"))
+    hit = _JSON_CACHE.get(key)
+    if hit is not None and (hit[0], hit[1]) == stamp:
+        return hit[2]
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    _JSON_CACHE[key] = (stamp[0], stamp[1], payload)
+    if len(_JSON_CACHE) > 256:  # tiny bound; entries are keyed by file
+        for stale in list(_JSON_CACHE)[:-128]:
+            _JSON_CACHE.pop(stale, None)
+    return payload
 
 
 def catalog_payload() -> dict[str, Any]:
@@ -45,6 +73,10 @@ def district_access_context_payload() -> dict[str, Any]:
     return _load_json(DATA / "derived" / "district_access_pressure_2022_23.json")
 
 
+def settlements_payload() -> dict[str, Any]:
+    return _load_json(DATA / "official" / "botswana_settlements.json")
+
+
 def cache_read(name: str, max_age: int) -> Any | None:
     p = CACHE / name
     if p.exists() and time.time() - p.stat().st_mtime < max_age:
@@ -53,7 +85,9 @@ def cache_read(name: str, max_age: int) -> Any | None:
 
 
 def cache_write(name: str, payload: Any) -> None:
-    (CACHE / name).write_text(json.dumps(payload), encoding="utf-8")
+    path = CACHE / name
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    _JSON_CACHE.pop(str(path), None)
 
 
 def overpass_to_geojson(payload: dict[str, Any]) -> dict[str, Any]:
@@ -129,7 +163,21 @@ def _voltage_bucket(raw: Any) -> str:
     return "below 66 kV / other"
 
 
+_SUMMARY_CACHE: dict[int, dict[str, Any]] = {}
+
+
 def geojson_evidence_summary(fc: dict[str, Any]) -> dict[str, Any]:
+    _hit = _SUMMARY_CACHE.get(id(fc))
+    if _hit is not None:
+        return _hit
+    _out = _build_geojson_evidence_summary(fc)
+    if len(_SUMMARY_CACHE) > 8:
+        _SUMMARY_CACHE.clear()
+    _SUMMARY_CACHE[id(fc)] = _out
+    return _out
+
+
+def _build_geojson_evidence_summary(fc: dict[str, Any]) -> dict[str, Any]:
     line_count = asset_count = 0
     mapped_km = 0.0
     km_by_voltage: dict[str, float] = {}
@@ -418,13 +466,32 @@ def enrich_power_geojson(fc: dict[str, Any], case: str = "reference") -> dict[st
     }
 
 
+NODE_SNAP_PLACES = 3  # ~100 m: heal small OSM junction gaps (labelled modelling assumption)
+
+
 def _node_key(coord: list[float]) -> tuple[float, float]:
-    # ~11 m longitude precision at the equator; sufficiently strict to avoid
-    # falsely joining unrelated corridors while absorbing float noise.
-    return (round(float(coord[0]), 4), round(float(coord[1]), 4))
+    # Vertices are snapped to ~100 m so mapped segments that meet at a junction
+    # with sub-100 m coordinate gaps form one electrical graph. This is a
+    # labelled planning assumption, not a BPC bus reconciliation.
+    return (round(float(coord[0]), NODE_SNAP_PLACES), round(float(coord[1]), NODE_SNAP_PLACES))
+
+
+_BRANCH_CACHE: dict[tuple, list] = {}
 
 
 def _benchmark_branches(fc: dict[str, Any], voltage_kv: int, case: str) -> list[dict[str, Any]]:
+    cache_key = (id(fc), voltage_kv, case)
+    cached = _BRANCH_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    branches = _build_benchmark_branches(fc, voltage_kv, case)
+    if len(_BRANCH_CACHE) > 32:
+        _BRANCH_CACHE.clear()
+    _BRANCH_CACHE[cache_key] = branches
+    return branches
+
+
+def _build_benchmark_branches(fc: dict[str, Any], voltage_kv: int, case: str) -> list[dict[str, Any]]:
     params = _benchmark_case_for_voltage(voltage_kv, case)
     if params is None:
         raise ValueError(f"No electrical benchmark for {voltage_kv} kV")
@@ -442,35 +509,43 @@ def _benchmark_branches(fc: dict[str, Any], voltage_kv: int, case: str) -> list[
         coords = geom.get("coordinates", [])
         if len(coords) < 2:
             continue
-        length_km = _line_length_km(coords)
-        if length_km <= 0:
-            continue
         circuits, circuits_status = _parse_circuits(props.get("circuits"))
-        r_ohm = params["r_ohm_per_km"] * length_km / circuits
-        x_ohm = params["x_ohm_per_km"] * length_km / circuits
-        x_pu = x_ohm / zbase
-        if x_pu <= 0:
-            continue
         nominal_mva = math.sqrt(3) * voltage_kv * params["i_nom_ka"] * circuits
         secure_mva = nominal_mva * params["security_factor_s_max_pu"]
-        branches.append({
-            "feature_id": feature.get("id"),
-            "name": props.get("name") or feature.get("id") or "Mapped line",
-            "from": _node_key(coords[0]),
-            "to": _node_key(coords[-1]),
-            "from_coord": coords[0],
-            "to_coord": coords[-1],
-            "length_km": length_km,
-            "r_ohm": r_ohm,
-            "x_ohm": x_ohm,
-            "x_pu": x_pu,
-            "secure_rating_mw": secure_mva,  # DC active-power screening approximation
-            "nominal_mva": nominal_mva,
-            "circuits": circuits,
-            "circuits_status": circuits_status,
-            "line_type": params["line_type"],
-            "voltage_kv": voltage_kv,
-        })
+        # Emit one branch per mapped vertex pair so segments that meet at an
+        # interior junction vertex form a connected graph. Endpoint-only
+        # branches fragment the national network at shared crossing vertices.
+        emitted = 0
+        for a, b in zip(coords, coords[1:]):
+            length_km = _line_length_km([a, b])
+            if length_km <= 0:
+                continue
+            r_ohm = params["r_ohm_per_km"] * length_km / circuits
+            x_ohm = params["x_ohm_per_km"] * length_km / circuits
+            x_pu = x_ohm / zbase
+            if x_pu <= 0:
+                continue
+            branches.append({
+                "feature_id": feature.get("id"),
+                "name": props.get("name") or feature.get("id") or "Mapped line",
+                "from": _node_key(a),
+                "to": _node_key(b),
+                "from_coord": a,
+                "to_coord": b,
+                "length_km": length_km,
+                "r_ohm": r_ohm,
+                "x_ohm": x_ohm,
+                "x_pu": x_pu,
+                "secure_rating_mw": secure_mva,  # DC active-power screening approximation
+                "nominal_mva": nominal_mva,
+                "circuits": circuits,
+                "circuits_status": circuits_status,
+                "line_type": params["line_type"],
+                "voltage_kv": voltage_kv,
+            })
+            emitted += 1
+        if emitted == 0:
+            continue
     return branches
 
 
@@ -672,6 +747,9 @@ def benchmark_transfer_study(
 
 
 
+_MI_CACHE: dict[tuple, dict[str, Any]] = {}
+
+
 def benchmark_multi_injection_study(
     fc: dict[str, Any],
     *,
@@ -694,6 +772,10 @@ def benchmark_multi_injection_study(
     total = sum(float(x.get("mw", 0.0)) for x in injections)
     if abs(total) > 1e-6:
         raise ValueError(f"Benchmark injections must balance to zero MW; net={total:.6f}")
+    _mi_key = (id(fc), voltage_kv, case, json.dumps(injections, sort_keys=True, default=str))
+    _mi_hit = _MI_CACHE.get(_mi_key)
+    if _mi_hit is not None:
+        return _mi_hit
     branches = _benchmark_branches(fc, voltage_kv, case)
     if not branches:
         return {"supported": False, "reason": f"No OSM line features with mapped {voltage_kv} kV voltage tag were available."}
@@ -733,8 +815,32 @@ def benchmark_multi_injection_study(
         aggregated[m["node"]]=aggregated.get(m["node"],0.0)+m["input"]["mw"]
     for node,mw in aggregated.items():
         if node!=slack: rhs[idx[node]] += mw/base_mva
-    theta_vec,iterations,residual=_cg_solve(matvec,rhs)
-    theta={slack:0.0,**{n:theta_vec[i] for n,i in idx.items()}}
+    solver_name = "pure-python-cg"
+    try:
+        import numpy as np
+        from scipy.sparse import csr_matrix
+        from scipy.sparse.linalg import spsolve
+        n = len(active) + 1
+        rows=[];cols=[];vals=[];diag=[0.0]*n
+        node_pos={node:i for i,node in enumerate(component_nodes)}
+        slackpos=node_pos[slack]
+        for br in component_branches:
+            i=node_pos[br["from"]]; j=node_pos[br["to"]]; b=1.0/br["x_pu"]
+            rows += [i, j]; cols += [j, i]; vals += [-b, -b]
+            diag[i]+=b; diag[j]+=b
+        L = csr_matrix((vals,(rows,cols)),shape=(n,n)) + csr_matrix((diag,(range(n),range(n))),shape=(n,n))
+        rhs_full=np.zeros(n)
+        for node,mw in aggregated.items():
+            if node!=slack: rhs_full[node_pos[node]] += mw/base_mva
+        L=L.tolil(); L[slackpos,:]=0.0; L[slackpos,slackpos]=1.0; rhs_full[slackpos]=0.0; L=L.tocsr()
+        theta_full=spsolve(L, rhs_full)
+        if not np.all(np.isfinite(theta_full)):
+            raise RuntimeError("sparse solve returned non-finite values")
+        theta={node: float(theta_full[node_pos[node]]) for node in component_nodes}
+        iterations=1; residual=0.0; solver_name="scipy-sparse-direct"
+    except Exception:
+        theta_vec,iterations,residual=_cg_solve(matvec,rhs)
+        theta={slack:0.0,**{n:theta_vec[i] for n,i in idx.items()}}
     flows=[]; total_loss=0.0
     for br in component_branches:
         flow_pu=(theta[br["from"]]-theta[br["to"]])/br["x_pu"]; flow_mw=flow_pu*base_mva
@@ -743,15 +849,19 @@ def benchmark_multi_injection_study(
         total_loss+=loss_mw
         flows.append({"feature_id":br["feature_id"],"name":br["name"],"flow_mw":round(flow_mw,3),"abs_flow_mw":round(abs(flow_mw),3),"benchmark_secure_rating_mw":round(br["secure_rating_mw"],3),"utilization_pct":round(util*100,2) if util is not None else None,"approx_i2r_loss_mw":round(loss_mw,4),"length_km":round(br["length_km"],3),"line_type":br["line_type"],"circuits":br["circuits"],"circuits_status":br["circuits_status"]})
     flows.sort(key=lambda r:r.get("utilization_pct") or 0,reverse=True)
-    return {
+    result = {
         "supported":True,"mode":"benchmark_dc_multi_injection",
         "inputs":{"voltage_kv":voltage_kv,"case":case,"net_injection_mw":round(total,6)},
         "mapped_injections":[{"name":m["input"].get("name"),"mw":m["input"]["mw"],"nearest":{"lon":m["node"][0],"lat":m["node"][1]},"distance_km":round(m["distance_km"],2),"component":m["component"]} for m in mapped],
         "network_scope":{"component_nodes":len(component_nodes),"component_branches":len(component_branches),"all_mapped_components_at_voltage":len(comps)},
-        "summary":{"max_benchmark_utilization_pct":flows[0]["utilization_pct"] if flows else 0.0,"branches_at_or_above_100_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=100),"branches_at_or_above_80_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=80),"approx_total_i2r_loss_mw":round(total_loss,4),"cg_iterations":iterations,"solver_residual":residual},
+        "summary":{"max_benchmark_utilization_pct":flows[0]["utilization_pct"] if flows else 0.0,"branches_at_or_above_100_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=100),"branches_at_or_above_80_pct":sum(1 for r in flows if (r["utilization_pct"] or 0)>=80),"approx_total_i2r_loss_mw":round(total_loss,4),"cg_iterations":iterations,"solver_residual":residual,"solver":solver_name},
         "flows":flows,"top_flows":flows[:30],
         "meta":{"evidence_class":"model_output_from_observed_geometry_plus_benchmark_parameters_plus_explicit_or_derived_scenario_injections","not":"measured BPC dispatch, measured line loading, real-time congestion, validated AC power flow or operational OPF","warning":"Use this to test planning cases. If injection values come from benchmark/modelled demand, preserve that provenance in the calling workflow."}
     }
+    if len(_MI_CACHE) > 32:
+        _MI_CACHE.clear()
+    _MI_CACHE[_mi_key] = result
+    return result
 
 def evidence_manifest_payload() -> dict[str, Any]:
     p = DATA / "evidence_manifest.json"

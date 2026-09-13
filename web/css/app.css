@@ -7,3 +7,61 @@
 /* v1.4 engineering benchmark + spatial enrichment */
 .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-grid.coords{grid-template-columns:repeat(2,1fr)}.field-grid label{display:grid;gap:5px;color:var(--muted);font-size:10px}.field-grid select,.field-grid input{width:100%;background:#0b1722;color:var(--text);border:1px solid #2a4052;border-radius:8px;padding:9px 10px;outline:none}.field-grid select:focus,.field-grid input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(66,214,231,.08)}.button-row{display:flex;gap:8px;flex-wrap:wrap}.engineering-controls .callout{margin-top:2px}.top-flow-table{max-height:280px;overflow:auto}.btn:disabled{opacity:.45;cursor:not-allowed}.gate b{text-transform:capitalize}.benchmark-note{color:var(--amber)}
 @media(max-width:650px){.field-grid,.field-grid.coords{grid-template-columns:1fr}.button-row .btn{width:100%}}
+
+/* ---- sidebar shell (v1.8) ---- */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh;align-items:start}
+.main{min-width:0;display:flex;flex-direction:column}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:14px 12px 10px;border-right:1px solid var(--line);background:linear-gradient(180deg,rgba(9,19,29,.96),rgba(7,15,23,.98));z-index:1100}
+.side-brand{display:flex;align-items:center;gap:10px;padding:2px 4px 12px;border-bottom:1px solid var(--div)}
+.side-brand-text b{font-size:16px;letter-spacing:.05em}
+.side-brand-text b span{color:var(--cyan)}
+.side-brand-text small{display:block;font-size:8px;letter-spacing:.14em;color:var(--muted);margin-top:2px}
+.side-collapse{margin-left:auto;border:1px solid var(--line);background:#0f1b27;color:var(--muted);border-radius:8px;width:26px;height:26px;cursor:pointer;line-height:1}
+.side-nav{flex:1;overflow-y:auto;padding:8px 0}
+.side-group{margin:12px 8px 4px;font-size:9px;letter-spacing:.16em;color:#688197}
+.side-item{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#b9c9d8;padding:9px 10px;border-radius:9px;cursor:pointer;text-align:left;font-size:12.5px;border-left:3px solid transparent;transition:background .12s}
+.side-item:hover{background:var(--hov);color:#fff}
+.side-item.active{background:#10202c;color:#fff;border-left-color:var(--cyan)}
+.side-item .ico{width:16px;height:16px;flex:none;opacity:.85}
+.side-item .step{margin-left:auto;font-size:9px;color:var(--muted)}
+.side-foot{border-top:1px solid var(--div);padding:10px 4px 2px;display:grid;gap:8px}
+.side-pills{display:flex;gap:6px;flex-wrap:wrap}
+.side-data{width:100%}
+.page-intent{margin:3px 0 0;color:var(--muted);font-size:11px}
+.side-mobile-toggle{display:none}
+.shell.sidebar-collapsed{grid-template-columns:68px minmax(0,1fr)}
+.shell.sidebar-collapsed .side-brand-text,
+.shell.sidebar-collapsed .side-group,
+.shell.sidebar-collapsed .side-item .lbl,
+.shell.sidebar-collapsed .side-item .step,
+.shell.sidebar-collapsed .side-foot{display:none}
+.shell.sidebar-collapsed .side-brand{justify-content:center}
+.shell.sidebar-collapsed .side-collapse{position:absolute;left:44px;top:20px}
+.shell.sidebar-collapsed .side-item{justify-content:center;padding:11px 0}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:264px;height:100%;transform:translateX(-102%);transition:transform .2s ease;box-shadow:0 0 45px rgba(0,0,0,.5)}
+  .shell.sidebar-open .sidebar{transform:none}
+  .side-mobile-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin-right:10px;border:1px solid var(--line);background:#101d29;color:#d7e4ee;border-radius:9px;font-size:16px}
+}
+
+/* ---- brand logo + village combobox (v1.9) ---- */
+.logo-img{width:35px;height:35px;border-radius:10px;display:block;box-shadow:0 0 18px rgba(66,214,231,.25)}
+.shell.sidebar-collapsed .logo-img{width:30px;height:30px}
+.combo{position:relative}
+.combo-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);background:#0f1b27;color:#dbe8f2;border-radius:9px;padding:9px 11px;cursor:pointer;text-align:left;font-size:12px}
+.combo-toggle:hover{border-color:#3a5268}
+.combo-toggle .caret{color:var(--muted)}
+.combo-menu{position:absolute;z-index:1200;left:0;right:0;margin-top:6px;background:#0d1a26;border:1px solid var(--line);border-radius:11px;box-shadow:0 18px 45px rgba(0,0,0,.45);padding:8px}
+.combo-menu[hidden]{display:none}
+.combo-filter{width:100%;border:1px solid var(--line);background:#0b1621;color:var(--text);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.combo-list{max-height:300px;overflow:auto}
+.combo-group{font-size:9px;letter-spacing:.14em;color:#688197;padding:8px 8px 4px}
+.combo-opt{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 9px;border-radius:8px;cursor:pointer;font-size:12px;color:#c7d5e2}
+.combo-opt:hover,.combo-opt.active{background:#132331;color:#fff}
+.combo-opt .pop{color:var(--muted);font-variant-numeric:tabular-nums}
+.combo-opt .pilot{color:var(--green);font-size:10px}
+.combo-empty{padding:10px;color:var(--muted);font-size:11px}
+.combo{grid-column:1/-1}
+.combo-hint{grid-column:1/-1;display:block;margin-top:2px}
+.field-grid select{width:100%;border:1px solid var(--line);background:#0f1b27;color:#dbe8f2;border-radius:9px;padding:9px 11px;font-size:12px}

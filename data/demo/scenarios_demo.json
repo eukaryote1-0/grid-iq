@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "purpose": "Deterministic inputs for the GridIQ on-stage demo. Values are labelled demo assumptions or explicit scenario inputs, never BPC measurements.",
+    "version": "1.0",
+    "warning": "The village demand intensity is an explicit demo assumption used only to illustrate right-sizing. It is not a measured village load and must be replaced with a licensed demand benchmark or metered data before any design decision."
+  },
+  "demo_village": "ukhwi",
+  "village_demand_benchmark": {
+    "annual_kwh_per_household": 800,
+    "peak_kw_per_household": 0.25,
+    "evening_energy_share_pct": 65,
+    "status": "explicit_demo_assumption",
+    "label": "Demo sizing assumption (benchmark illustration) — not measured. Replace with a licensed DEL/GEP demand benchmark.",
+    "source_note": "Chosen to illustrate evening-peak village demand; GridIQ's own community_costs.json leaves Botswana household intensity as unknown."
+  },
+  "e1_scenarios": {
+    "A": {
+      "name": "Option A — remote solar-heavy, high import corridor",
+      "payload": {
+        "source_year": 2025,
+        "import_capacity_limit_mw": 400,
+        "import_energy_price_usd_per_mwh": 100,
+        "max_solar_mw": 2500,
+        "max_wind_mw": 0,
+        "max_bess_mw": 400,
+        "bess_duration_h": 4,
+        "real_discount_rate": 0.08
+      }
+    },
+    "B": {
+      "name": "Option B — balanced local mix, firm import corridor",
+      "payload": {
+        "source_year": 2025,
+        "import_capacity_limit_mw": 190,
+        "import_energy_price_usd_per_mwh": 100,
+        "max_solar_mw": 1200,
+        "max_wind_mw": 0,
+        "max_bess_mw": 1000,
+        "bess_duration_h": 4,
+        "real_discount_rate": 0.08
+      }
+    }
+  },
+  "e2_system_study": {
+    "voltage_kv": 220,
+    "case": "reference",
+    "injections": [
+      {"name": "Morupule benchmark injection", "lat": -22.520735, "lon": 27.03615, "mw": 200},
+      {"name": "Gaborone benchmark withdrawal", "lat": -24.6282, "lon": 25.9231, "mw": -120},
+      {"name": "Selebi-Phikwe benchmark withdrawal", "lat": -21.9786, "lon": 27.8425, "mw": -80}
+    ],
+    "note": "Balanced explicit benchmark injections, not real BPC dispatch."
+  },
+  "e2_target_loss": {
+    "bpc_2023_gwh": 642,
+    "bpc_2024_gwh": 793,
+    "scope_note": "BPC reports combined T&D/system losses; GridIQ's model is transmission-only and is expected to undercount."
+  }
+}

@@ -12,7 +12,13 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse, JSONResponse, ORJSONResponse
+try:  # optional fast serialiser
+    import orjson as _orjson  # noqa: F401
+    _DEFAULT_RESPONSE = ORJSONResponse
+except Exception:  # pragma: no cover
+    _DEFAULT_RESPONSE = JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -61,13 +67,37 @@ from .logic import (
     plant_reference_payload,
     scenario_payload,
     storage_benchmarks_payload,
+    settlements_payload,
 )
 from .engines_router import router as engines_router
+from .tiles import router as tiles_router
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 
-app = FastAPI(title="GridIQ Botswana", version="1.7.0")
+# --- upstream circuit breaker -------------------------------------------------
+# Blocked upstreams (GEP/DRE/Eskom are commonly unreachable from some networks)
+# must fail fast instead of hanging a request for the full connect timeout.
+_UPSTREAM_DOWN: dict[str, float] = {}
+UPSTREAM_COOLDOWN_S = 600.0
+
+
+def _upstream_blocked(name: str) -> bool:
+    return time.time() < _UPSTREAM_DOWN.get(name, 0.0)
+
+
+def _mark_upstream(name: str, ok: bool) -> None:
+    if ok:
+        _UPSTREAM_DOWN.pop(name, None)
+    else:
+        _UPSTREAM_DOWN[name] = time.time() + UPSTREAM_COOLDOWN_S
+
+
+def _upstream_guard(name: str, label: str) -> None:
+    if _upstream_blocked(name):
+        raise HTTPException(status_code=503, detail=f"{label} is marked unavailable after a recent failure; try again shortly.")
+
+app = FastAPI(title="Eukaryote 1.0", version="1.7.0", default_response_class=_DEFAULT_RESPONSE)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^http://(localhost|127\.0\.0\.1)(:\d+)?$",
@@ -75,14 +105,25 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=4)
 app.mount("/static", StaticFiles(directory=WEB), name="static")
 app.include_router(engines_router)
+app.include_router(tiles_router)
 
 
 @app.middleware("http")
 async def security_headers(request, call_next):
     response = await call_next(request)
-    response.headers["Cache-Control"] = "no-store"
+    path = request.url.path
+    if path.startswith("/static/"):
+        # Static assets are version-tagged in HTML (?v=...); safe to cache in the browser.
+        response.headers["Cache-Control"] = "public, max-age=86400"
+    elif path.startswith("/tiles/"):
+        pass  # the tile route sets its own long-lived cache header
+    elif path == "/api/osm/power":
+        response.headers["Cache-Control"] = "public, max-age=300"
+    else:
+        response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -139,6 +180,24 @@ def census_districts():
 @app.get("/api/demand/district-context")
 def district_access_context():
     return district_access_context_payload()
+
+
+@app.get("/api/villages")
+def villages(query: str = Query(""), limit: int = Query(400, ge=1, le=3000)):
+    """Botswana settlement register for the VillageFit dropdown (World Bank DRE Atlas)."""
+    payload = settlements_payload()
+    rows = payload.get("villages", [])
+    q = query.strip().lower()
+    if q:
+        matched = [r for r in rows if q in str(r.get("name", "")).lower() or q in str(r.get("district", "")).lower()]
+    else:
+        matched = rows
+    return {
+        "villages": matched[:limit],
+        "count": len(matched),
+        "total": len(rows),
+        "meta": payload.get("metadata", {}),
+    }
 
 
 @app.get("/api/supply/metrics")
@@ -212,7 +271,7 @@ async def benchmark_boundaries(level: int = Query(1, ge=0, le=2)):
         return cached
     url=f"https://storage.googleapis.com/location-grid-gis-layers/bwa_admin{level}.geojson"
     try:
-        async with httpx.AsyncClient(timeout=35, headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
             r=await client.get(url); r.raise_for_status(); body=r.json()
         out={"geojson":body,"meta":{"source":"Location Grid Project / public Botswana administrative layer","source_url":url,"evidence_class":"external_open_geometry_benchmark","warning":"This is a non-authoritative spatial substitute for display/spatial joins. It must not be relabelled as the Statistics Botswana official sub-district shapefile."}}
         cache_write(key,out); return out
@@ -237,17 +296,20 @@ async def dre_settlements(
 
     This returns modelled settlement-planning evidence, not a BPC connection-status register.
     """
+    _upstream_guard("dre", "World Bank DRE Atlas")
     rid = "42a50c1b-7920-4e2c-a465-e15f1f9d8711"
     q = query.strip().replace("'", "''")
     fields = 'geohash,lat,lon,village_name,admin_cgaz_1,admin_cgaz_2,population,num_buildings,main_road_access,dist_main_road_km,distance_to_existing_transmission_lines,distance_to_planned_transmission_lines,has_nightlight,pv_value,crop_types,ag_area,ag_value,ag_yield,num_connections,demand,demand_connection'
     where = f"WHERE lower(village_name) LIKE lower('%{q}%')" if q else ''
     sql = f'SELECT {fields} FROM "{rid}" {where} ORDER BY population DESC NULLS LAST LIMIT {int(limit)}'
     try:
-        async with httpx.AsyncClient(timeout=35, headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
             r=await client.get("https://energydata.info/en/api/3/action/datastore_search_sql",params={"sql":sql}); r.raise_for_status()
         body=r.json(); records=body.get("result",{}).get("records",[]) if body.get("success") else []
+        _mark_upstream("dre", True)
         return {"records":records,"count":len(records),"query":query,"meta":{"source":"World Bank Botswana DRE Atlas","resource_id":rid,"license":"CC BY 4.0","evidence_class":"modelled_open_settlement_planning_data","warning":"Settlement clusters and indicators are planning/modelled evidence, not a verified current BPC unconnected-village list."}}
     except Exception as exc:
+        _mark_upstream("dre", False)
         raise HTTPException(status_code=503,detail=f"DRE Atlas DataStore unavailable: {exc}")
 
 
@@ -260,11 +322,12 @@ async def dre_candidate_register(limit: int = Query(100, ge=10, le=500)):
     night-light indicator so the absence of a current BPC connection register does not
     block planning screens.
     """
+    _upstream_guard("dre", "World Bank DRE Atlas")
     rid="42a50c1b-7920-4e2c-a465-e15f1f9d8711"
     fields='geohash,lat,lon,village_name,admin_cgaz_1,admin_cgaz_2,population,distance_to_existing_transmission_lines,has_nightlight,pv_value,num_connections,demand,demand_connection'
     sql=f'SELECT {fields} FROM "{rid}" ORDER BY population DESC NULLS LAST LIMIT 500'
     try:
-        async with httpx.AsyncClient(timeout=35,headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4),headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
             r=await client.get("https://energydata.info/en/api/3/action/datastore_search_sql",params={"sql":sql}); r.raise_for_status()
         body=r.json(); rows=body.get("result",{}).get("records",[]) if body.get("success") else []
         def fnum(v):
@@ -289,16 +352,19 @@ async def dre_candidate_register(limit: int = Query(100, ge=10, le=500)):
 
 @app.get("/api/dre/point")
 async def dre_point(lat: float=Query(...,ge=-90,le=90), lon: float=Query(...,ge=-180,le=180)):
+    _upstream_guard("dre", "World Bank DRE Atlas")
     rid="42a50c1b-7920-4e2c-a465-e15f1f9d8711"
     fields='geohash,lat,lon,village_name,admin_cgaz_1,admin_cgaz_2,population,num_buildings,main_road_access,dist_main_road_km,distance_to_existing_transmission_lines,distance_to_planned_transmission_lines,has_nightlight,pv_value,crop_types,ag_area,ag_value,ag_yield,num_connections,demand,demand_connection'
     sql=(f'SELECT {fields} FROM "{rid}" ORDER BY POWER(CAST(lat AS double precision)-({float(lat)}),2)+POWER(CAST(lon AS double precision)-({float(lon)}),2) LIMIT 1')
     try:
-        async with httpx.AsyncClient(timeout=35,headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4),headers={"User-Agent":"GridIQ-Botswana/1.7"}) as client:
             r=await client.get("https://energydata.info/en/api/3/action/datastore_search_sql",params={"sql":sql});r.raise_for_status()
         body=r.json(); rec=body.get("result",{}).get("records",[]) if body.get("success") else []
         if not rec: raise RuntimeError("DRE DataStore returned no settlement")
+        _mark_upstream("dre", True)
         return {"record":rec[0],"query":{"lat":lat,"lon":lon},"meta":{"source":"World Bank Botswana DRE Atlas","resource_id":rid,"license":"CC BY 4.0","evidence_class":"modelled_open_settlement_planning_data","warning":"Nearest modelled settlement cluster, not a BPC connection-status determination."}}
     except Exception as exc:
+        _mark_upstream("dre", False)
         raise HTTPException(status_code=503,detail=f"DRE Atlas DataStore unavailable: {exc}")
 
 
@@ -317,6 +383,7 @@ async def gep_point(
     if cached:
         cached.setdefault("meta", {})["cache"] = "hit"
         return cached
+    _upstream_guard("gep", "World Bank GEP")
     rid = "3d6620fa-f9b7-46b3-b886-18b4072c38a8"
     # CKAN DataStore SQL: nearest cell by squared geographic distance.
     sql = (
@@ -325,7 +392,7 @@ async def gep_point(
         f'POWER(CAST("Y_deg" AS double precision)-({float(lat)}),2) LIMIT 1'
     )
     try:
-        async with httpx.AsyncClient(timeout=35, headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
             r = await client.get("https://energydata.info/en/api/3/action/datastore_search_sql", params={"sql": sql})
             r.raise_for_status()
         body = r.json()
@@ -333,6 +400,7 @@ async def gep_point(
         if not records:
             raise RuntimeError("GEP DataStore returned no record")
         record = records[0]
+        _mark_upstream("gep", True)
         out = {
             "record": record,
             "query": {"lat": lat, "lon": lon},
@@ -351,6 +419,7 @@ async def gep_point(
         stale = CACHE / key
         if stale.exists():
             out = json.loads(stale.read_text(encoding="utf-8")); out.setdefault("meta", {})["cache"] = "stale"; return out
+        _mark_upstream("gep", False)
         raise HTTPException(status_code=503, detail=f"World Bank GEP DataStore unavailable: {exc}")
 
 
@@ -433,7 +502,7 @@ async def nasa_power(
         "format": "JSON",
     }
     try:
-        async with httpx.AsyncClient(timeout=35, headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
             r = await client.get(url, params=params)
             r.raise_for_status()
         data = r.json()
@@ -503,7 +572,7 @@ async def _eskom_hourly_shape() -> dict:
         return cached
     page = "https://www.eskom.co.za/dataportal/demand-side/system-hourly-demand-and-available-capacity/"
     try:
-        async with httpx.AsyncClient(timeout=35, follow_redirects=True, headers={"User-Agent":"GridIQ-Botswana/1.6"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), follow_redirects=True, headers={"User-Agent":"GridIQ-Botswana/1.6"}) as client:
             page_resp = await client.get(page)
             page_resp.raise_for_status()
             html = page_resp.text
@@ -907,7 +976,7 @@ async def worldpop_population(
         coords.append([lon + dlon, lat + dlat])
     payload = {"geojson": {"type": "Polygon", "coordinates": [coords]}, "year": year, "resolution": "1km"}
     try:
-        async with httpx.AsyncClient(timeout=35, headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20, connect=4), headers={"User-Agent": "GridIQ-Botswana/1.7"}) as client:
             submitted = await client.post("https://api.worldpop.org/v2/population", json=payload)
             submitted.raise_for_status()
             task_id = submitted.json().get("task_id")

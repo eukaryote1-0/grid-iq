@@ -42,7 +42,7 @@ if "$PY" -m venv .venv >/dev/null 2>&1; then
   fi
 
   echo "Checking FastAPI runtime..."
-  if ! "$VENV_PY" -c 'import fastapi,uvicorn,httpx,pydantic' >/dev/null 2>&1; then
+  if ! "$VENV_PY" -c 'import fastapi,uvicorn,httpx,pydantic,numpy,scipy,networkx,orjson' >/dev/null 2>&1; then
     echo "Installing Python runtime (binary wheels only)..."
     # Upgrade pip if possible, but do not make startup depend on this optional step.
     PIP_DEFAULT_TIMEOUT=5 "$VENV_PY" -m pip install -q --retries 1 --disable-pip-version-check --upgrade pip >/dev/null 2>&1 || true
@@ -56,7 +56,7 @@ if "$PY" -m venv .venv >/dev/null 2>&1; then
     fi
   fi
 
-  if "$VENV_PY" -c 'import fastapi,uvicorn,httpx,pydantic' >/dev/null 2>&1; then
+  if "$VENV_PY" -c 'import fastapi,uvicorn,httpx,pydantic,numpy,scipy,networkx,orjson' >/dev/null 2>&1; then
     RUNTIME="fastapi"
   fi
 else
