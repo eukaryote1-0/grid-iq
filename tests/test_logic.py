@@ -188,7 +188,7 @@ class EngineeringBenchmarkTests(unittest.TestCase):
 
 
 def test_representative_day_benchmark_engine_solves_with_test_shapes():
-    from app.engines import representative_day_capacity_expansion_screen
+    from engines.e1_opt import representative_day_capacity_expansion_screen
     # Test-only deterministic fixtures; no fixture values are shipped as energy evidence.
     demand = [0.70,0.66,0.63,0.61,0.60,0.62,0.70,0.80,0.88,0.90,0.89,0.87,
               0.85,0.84,0.86,0.90,0.96,1.00,0.98,0.94,0.90,0.84,0.78,0.73]

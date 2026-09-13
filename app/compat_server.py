@@ -18,7 +18,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from app.logic import (CACHE, audit_payload, baseline_payload, benchmark_transfer_study, benchmark_multi_injection_study, catalog_payload, cache_read, cache_write, census_districts_payload, district_access_context_payload, electrical_benchmarks_payload, enrich_power_geojson, evidence_manifest_payload, geojson_evidence_summary, neus_payload, overpass_to_geojson, plant_reference_payload, scenario_payload, storage_benchmarks_payload)
-from app.engines import (agriculture_payload, agriculture_district_payload, biogas_benchmarks_payload, bpc_grid_public_payload, bpc_losses_payload, capacity_expansion_screen, community_benchmarks_payload, gep_reference_payload, historical_supply_metrics_payload, loss_reconciliation_payload, renewable_benchmarks_payload, rural_electrification_payload, sapp_transfer_limits_payload, spatialize_e1_plan, structural_criticality_payload, villagefit_screen)
+from engines.e1_opt import capacity_expansion_screen, spatialize_e1_plan
+from engines.e3_criticality import structural_criticality_payload
+from engines.e4_siting import villagefit_screen
+from engines.e2_flow.reconciliation import loss_reconciliation_payload
+from engines.e2_flow.loss_reconciliation import loss_reconciliation as e2_cross_check
+from engines.payloads import (agriculture_payload, agriculture_district_payload, biogas_benchmarks_payload, bpc_grid_public_payload, bpc_losses_payload, community_benchmarks_payload, gep_reference_payload, renewable_benchmarks_payload, rural_electrification_payload, sapp_transfer_limits_payload)
+from engines.supply import historical_supply_metrics_payload
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
@@ -198,6 +204,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(evidence_manifest_payload())
         if path == "/api/audit":
             return self._json(audit_payload())
+        if path == "/api/engines/loss-reconciliation":
+            return self._json(e2_cross_check())
         if path == "/api/engineering/enriched-network":
             case = qs.get("case", ["reference"])[0]
             cached = cache_read("osm_power.json", 365 * 24 * 3600)
