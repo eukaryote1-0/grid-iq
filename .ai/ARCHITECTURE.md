@@ -43,8 +43,15 @@ Engines
 ### Backend
 - `app/main.py`: FastAPI API/static server and live async connectors.
 - `app/compat_server.py`: stdlib fallback preserving core local API behavior; advanced chronology may require preferred runtime.
-- `app/logic.py`: source loading, topology, electrical enrichment, DC solvers, scenario screening and audit gates.
-- `app/engines.py`: E1/E3/E4, loss reconciliation and benchmark-chronology logic.
+- `app/logic.py`: source loading, topology, electrical enrichment, DC solvers (transfer + multi-injection), scenario screening and audit gates.
+- `engines/`: planning engines, importable without the web server:
+  - `engines/payloads.py` — official/benchmark/reference payload loaders;
+  - `engines/e1_opt/` — capacity-expansion LP, site screen, representative-day chronology;
+  - `engines/e2_flow/` — `reconciliation.py` (v1.7 loss-reconciliation wrapper) and `loss_reconciliation.py` (independent transmission-loss cross-check, served at `/api/engines/loss-reconciliation`);
+  - `engines/e3_criticality/` — bridges, articulation points, N-1 islanding, edge betweenness;
+  - `engines/e4_siting/` — nearest-grid distance and the VillageFit screen;
+  - `engines/supply.py` — historical supply metrics.
+- `app/engines_router.py`: additive routes for the `engines/` package.
 
 ### Frontend
 - `web/index.html`: application shell + startup-failure guard.

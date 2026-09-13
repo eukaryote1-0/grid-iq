@@ -85,3 +85,6 @@
 
 ### Notes
 - BPC 2024 T&D losses (793 GWh, 16.62%) are now sourced to BPC IR 2024/25 in `data/official/bpc_system_losses.json`, resolving the earlier unverified figure; the 2023 anchor (642 GWh, 14.51%) is unchanged pending team decision.
+
+### Refactor
+- `app/engines.py` split into the `engines/` package (payloads, E1, E2, E3, E4, supply) per `AGENTS.md`; `app/main.py`/`app/compat_server.py` rewired; the independent E2 transmission-loss cross-check kept at `/api/engines/loss-reconciliation`.
