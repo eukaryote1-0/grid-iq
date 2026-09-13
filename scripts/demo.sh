@@ -9,6 +9,10 @@ PY="${PYTHON:-python3}"
 
 echo "== 1/3 prewarm (offline fixtures) =="
 "$PY" scripts/prewarm_demo.py
+if [ ! -d data/cache/tiles ] || [ -z "$(ls -A data/cache/tiles 2>/dev/null)" ]; then
+  echo "-- tile cache empty; prewarming map tiles (bounded, one pass) --"
+  "$PY" scripts/prewarm_tiles.py || echo "tile prewarm skipped (network unavailable)"
+fi
 
 echo
 echo "== 2/3 start app =="
